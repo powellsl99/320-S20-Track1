@@ -27,35 +27,38 @@ def update_supporter_appointment_settings(event, context):
         }
 
     #Dictionary of things that need to be updated
-    updates = {}
+    # updates = {}
+    query = ""
 
     #Can't be null
-    if(job_search != None):
-        updates["job_search"] = job_search
-    if(grad_student != None):
-        updates["grad_student"] = grad_student
-    if(job_search == None or grad_student == None):
+    # if(job_search != None):
+    #     updates["job_search"] = job_search
+    # if(grad_student != None):
+    #     updates["grad_student"] = grad_student
+    if(job_search == None or grad_student == None): #These values cannot be null
         return{
             'statusCode' : 422 #unproccesable
         }
 
     #Can be null
-    updates["max_students"] = max_students
-    updates["duration"] = duration
-    updates["major_id"] = major_id
-    updates["specialization_type_id"] = specialization_type_id
+    # updates["max_students"] = max_students
+    # updates["duration"] = duration
+    # updates["major_id"] = major_id
+    # updates["specialization_type_id"] = specialization_type_id
 
+    #Put the values into a dictionary to make the query easier to make but there's multiple tables so it's probably not needed
 
-    #Use keys from dictionary to know what to update
-    #updates.keys() gets a list of keys
+    preferences_table = "UPDATE supporter_preferences_for_student SET job_search = '%s', grad_student = '%s' WHERE supporter_id = '%s';" % (job_search, grad_student, supporter_id)
+    specialization_table = "UPDATE supporter_specializations SET max_students = '%s', duration = '%s', specialization_type_id = '%s' WHERE supporter_id = '%s';" % (max_students, duration, specialization_type_id, supporter_id)
+    major_preferences_table = "INSERT INTO supporter_major_preferences (supporter_id, major_id) VALUES ('%s', '%s');" % (supporter_id, major_id)
+
+    query = preferences_table + " " + specialization_table + " " + major_preferences_table
+
     client.execute_statement(
         secretArn = constants.SECRET_ARN, 
         database = constants.DB_NAME,
         resourceArn = constants.ARN,
-        # sql = "UPDATE supporter_preferences_for_student SET job_search = '%s', grad_student = '%s' WHERE supporter_id = '%s'; \
-        #     UPDATE supporter_specializations SET max_students = '%s', duration = '%s', specialization_type_id = '%s' WHERE supporter_id = '%s';" % (job_search, grad_student, supporter_id, max_students, duration, specialization_type_id, supporter_id)
-
-        sql = ""
+        sql = query
     )
 
     return {
