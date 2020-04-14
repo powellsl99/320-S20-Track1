@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 // import { Grid, AppBar, Toolbar, Typography } from "@material-ui/core";
 import Faqs from "./components/Faqs";
-import Header from "./components/Header";
 import "./App.css";
 
 class App extends Component {
@@ -32,11 +31,6 @@ class App extends Component {
         question: "What is my birthday?",
         answer: "Check your profile",
       },
-      {
-        id: 6,
-        question: "What is the square root of 169",
-        answer: "13",
-      },
     ],
   };
 
@@ -44,7 +38,6 @@ class App extends Component {
     return (
       <div className="App">
         <div className="container">
-          <Header />
           <Faqs faqs={this.state.faqs} />
         </div>
       </div>
