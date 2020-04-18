@@ -41,15 +41,15 @@ def login(event, context):
 
     print("User exists! Fetching name...") 
     sql = "SELECT first_name FROM users WHERE email = '%s';" % (given_email)
-    # f_name = query(sql)['records'][0][0]['stringValue']
+    f_name = query(sql)['records'][0][0]['stringValue']
 
     sql = "SELECT last_name FROM users WHERE email = '%s';" % (given_email)
-    # l_name = query(sql)['records'][0][0]['stringValue']
+    l_name = query(sql)['records'][0][0]['stringValue']
 
     #Get password from existing user and if does not match return a 400 http
     print("Acquiring password...")
     sql = "SELECT hashed_password FROM users WHERE email = '%s';" % (given_email)
-    # existing_password = query(sql)['records'][0][0]['stringValue']
+    existing_password = query(sql)['records'][0][0]['stringValue']
 
     print("Checking password...")
     if not given_password == existing_password:
@@ -58,7 +58,7 @@ def login(event, context):
     #Get user type from Database
     print("Password verified. Checking role...")
     sql = "SELECT id FROM users WHERE email = '%s';" % (given_email)
-    # user_id = query(sql)     
+    user_id = query(sql)['records'][0][0]['stringValue']    
 
     role = 'student'
 
@@ -72,6 +72,7 @@ def login(event, context):
     print("Done!")
     response_body = {
         'token': str(token), 
+        'user_id': str(user_id)
         'email' : str(given_email),
         'f_name': str(f_name),
         'l_name': str(l_name),
