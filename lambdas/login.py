@@ -25,8 +25,9 @@ def login(event, context):
     given_email = event['UserEmail']
     given_password = event['Password']
 
-    sql = "SELECT email FROM users WHERE email = '%s';" % (given_email)
-    existing_user = query(sql)
+    sql = "SELECT email FROM users WHERE email = :given_email"
+    sql_parameters = [{'name' : 'given_email', 'value' : {'stringValue' : given_email}}]
+    existing_user = query(sql, sql_parameters)
 
     print("Checking if user exists...")
     if(existing_user['records'] == []):
@@ -35,15 +36,15 @@ def login(event, context):
 
     print("User exists! Fetching name...") 
     sql = "SELECT first_name FROM users WHERE email = '%s';" % (given_email)
-    f_name = query(sql)['records'][0][0]['stringValue']
+    # f_name = query(sql)['records'][0][0]['stringValue']
 
     sql = "SELECT last_name FROM users WHERE email = '%s';" % (given_email)
-    l_name = query(sql)['records'][0][0]['stringValue']
+    # l_name = query(sql)['records'][0][0]['stringValue']
 
     #Get password from existing user and if does not match return a 400 http
     print("Acquiring password...")
     sql = "SELECT hashed_password FROM users WHERE email = '%s';" % (given_email)
-    existing_password = query(sql)['records'][0][0]['stringValue']
+    # existing_password = query(sql)['records'][0][0]['stringValue']
 
     print("Checking password...")
     if not given_password == existing_password:
@@ -52,7 +53,7 @@ def login(event, context):
     #Get user type from Database
     print("Password verified. Checking role...")
     sql = "SELECT id FROM users WHERE email = '%s';" % (given_email)
-    user_id = query(sql)     
+    # user_id = query(sql)     
 
     role = 'student'
 
