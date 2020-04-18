@@ -1,6 +1,6 @@
 from package.lambda_exception import LambdaException
 from package.query_db import query
-from package/external_libraries import jwt
+from package.external_libraries import jwt
 from datetime import timedelta
 import datetime
 import dateutil.tz
@@ -55,10 +55,10 @@ def login(event, context):
     if not given_password == existing_password:
         raise LambdaException("Invalid input: Incorrect password")
 
-    #Get user type from Database
+    #Get user id from Database
     print("Password verified. Checking role...")
     sql = "SELECT id FROM users WHERE email = '%s';" % (given_email)
-    user_id = query(sql)['records'][0][0]['stringValue']    
+    user_id = query(sql)['records'][0][0]['longValue']    
 
     role = 'student'
 
@@ -72,7 +72,7 @@ def login(event, context):
     print("Done!")
     response_body = {
         'token': str(token), 
-        'user_id': str(user_id)
+        'user_id': str(user_id),
         'email' : str(given_email),
         'f_name': str(f_name),
         'l_name': str(l_name),
