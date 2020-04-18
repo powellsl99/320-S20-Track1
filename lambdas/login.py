@@ -25,9 +25,14 @@ def login(event, context):
     given_email = event['UserEmail']
     given_password = event['Password']
 
-    sql = "SELECT email FROM users WHERE email = :given_email"
-    sql_parameters = [{'name' : 'given_email', 'value' : {'stringValue' : given_email}}]
-    existing_user = query(sql, sql_parameters)
+    #Parameterized querying#
+
+    # sql = "SELECT email FROM users WHERE email = :given_email"
+    # sql_parameters = [{'name' : 'given_email', 'value' : {'stringValue' : given_email}}]
+    # existing_user = query(sql, sql_parameters)
+
+    sql = "SELECT email FROM users WHERE email = '%s';" % (given_email)
+    existing_user = query(sql)
 
     print("Checking if user exists...")
     if(existing_user['records'] == []):
