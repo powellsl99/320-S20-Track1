@@ -2,7 +2,7 @@ import React from 'react';
 import {Typography, Container, Card, TextField, Grid, Button, ButtonGroup, CardHeader} from '@material-ui/core';
 
 
-const MyApp = () => {
+const Feedback = (props) => {
     const supporterfed = ['Experience of meeting', 'Effectiveness of meeting']
     return (
     <Container component = 'main'>
@@ -59,4 +59,4 @@ const MyApp = () => {
     );
 }
 
-export default MyApp
+export default Feedback;
