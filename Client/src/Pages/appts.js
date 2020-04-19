@@ -3,8 +3,8 @@ import Cookies from 'universal-cookie';
 import { makeStyles } from '@material-ui/core/styles';
 import UpcomingAppointmentCard from '../components/UpcomingAppointmentsCard';
 import PreviousAppointmentCard from '../components/PreviousAppointmentsCard';
-import {Container, Grid, Typography, GridList, GridListTile, ListSubheader, Paper} from '@material-ui/core';
-
+import {Container, Grid, Typography, GridList, GridListTile, ListSubheader, Paper, Drawer} from '@material-ui/core';
+const drawerWidth = "0%";
 
 
 
@@ -22,6 +22,16 @@ const useStyles = makeStyles((theme) => ({
   },
   icon: {
     color: 'rgba(255, 255, 255, 0.54)',
+  },
+  drawer: {
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+      flexShrink: 0,
+    },
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
   },
 }));
 
@@ -73,11 +83,17 @@ const MyApp = () => {
         profilepic: 'https://media-exp1.licdn.com/dms/image/C4E03AQEI1xiLxIRwwQ/profile-displayphoto-shrink_800_800/0?e=1592438400&v=beta&t=c9kLd437l0lZYFSzgA8Q1C9iNeow_wVHRRB8J3GVRJ8'
       }
   ];
+ 
   return (
-    <Container component='main'>
+    <Container component='main' class="jss271">
+        <Drawer className={classes.drawer}
+        variant="permanent"
+        classes={{
+          paper: classes.drawerPaper,
+        }}>
+          <Typography align="center">What day would you like an appointment on?</Typography>
+        </Drawer>
     
-    <Grid lg = {12} style = {{justifyContent: 'center', display: 'flex'}}>
-      <GridList cellHeight={180} className={classes.gridList} style={{justifyContent: 'center'}}>
         <Grid lg = {12} style = {{justifyContent: 'center', display: 'flex'}}>
           <Typography style={{fontSize: 50}}>Upcoming Appointments</Typography>
         </Grid>
@@ -125,8 +141,7 @@ const MyApp = () => {
           
           
           
-        </GridList>
-      </Grid>
+    
     </Container>
     
   );

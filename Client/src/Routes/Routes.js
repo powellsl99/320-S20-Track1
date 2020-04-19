@@ -5,7 +5,7 @@ import SignUp from "../Pages/signup.js";
 import SignUpSupporter from "../Pages/signUpSupporter.js";
 import tos from "../Pages/TOS.js";
 import Home from "../Pages/home.js";
-import appts from "../Pages/appts.js";
+import appts from "../Pages/appts3.js";
 import NotFound from "../Pages/NotFound.js"
 import Account from "../Pages/account.js";
 import AdminSettings from "../Pages/adminSettings.js"
