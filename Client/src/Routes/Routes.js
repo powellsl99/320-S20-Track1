@@ -28,7 +28,7 @@ export default function Routes() {
           <AuthenticatedRoute path="/home" exact component={Home} />
           <AuthenticatedRoute path="/FAQ" exact component={FAQ} />
           <AuthenticatedRoute path="/feedback" exact component={Feedback} />
-          <AuthenticatedRoute path="/admin-settings" exact component={AdminSettings} />
+          <Route path="/admin-settings" exact component={AdminSettings} />
           <SupporterRoute path="/supporter-settings" exact component={SupporterSettings} />
           <UnauthenticatedRoute path="/login" exact component={Login} />
           <AuthenticatedRoute path="/match" exact component={Matching} />

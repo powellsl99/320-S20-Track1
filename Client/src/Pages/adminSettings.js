@@ -34,6 +34,24 @@ export default function AdminSettings() {
     'UserD'
   ]
 
+  const dummySupporters = [
+    {
+      name:"Chinmay Patil",
+      tags: ["React", "Machine Learning","iOS","React", "C++","HTML","CSS", "x86 Assembly","320","Project Managing", "UI Design","UX Design","Natrual Language Processing", "Typography","OSX","Vim", "Git","Angular"],
+      topics: ["Mock Interview","Resume Review","Job Search","Cover Letter"],
+    },
+    {
+      name:"Dhruvil Gala",
+      tags: ["AWS", "Microsoft","Algorithms","AWS"],
+      topics: ["Mock Interview","Resume Review","Cover Letter","Job Search"],
+    },
+    {
+      name:"Brian Krusell",
+      tags: ["Industry", "Networking"],
+      topics: ["Resume Review","Job Search","Cover Letter"],
+    }
+  ]
+
   const [curField, setCurrField] = useState("");
   const [newDefault, setNewDefault] = useState("");
   const [selectedTopic, setSelectedTopic] = useState("");
@@ -42,6 +60,7 @@ export default function AdminSettings() {
   const [addTag, setAddTag] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedBlockedUser, setSelectedBlockedUser] = useState("");
+  const [selectedSupporter, setSelectedSupporter] = useState({});
 
 
   return (
@@ -114,40 +133,59 @@ export default function AdminSettings() {
               </Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
-              <Grid container spacing={1}>
-                <Grid item xs={3}>
-                  <Autocomplete
-                    id="supporter-topics"
-                    options= {Topics}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        label="Topics"
-                      />
-                    )}
-                    onChange={(e,v) => setSelectedTopic(v)}
-                  />
+              <Grid container direction='column'>
+                <Grid container spacing={1}>
+                  <Grid item xs={3}>
+                    <Autocomplete
+                      id="supporter-topics"
+                      options= {Topics}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Topics"
+                        />
+                      )}
+                      onChange={(e,v) => setSelectedTopic(v)}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Button variant='contained' color='primary' size='large'>
+                      Delete Topic
+                    </Button>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <TextField
+                      variant="outlined"
+                      id="add-topic"
+                      fullWidth
+                      label="Topic to add:"
+                      name="add-topic"
+                      onChange={e => setAddTopic(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Button variant='contained' color='primary' size='large'>
+                      Add Topic
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs={2}>
-                  <Button variant='contained' color='primary' size='large'>
-                    Delete Topic
-                  </Button>
-                </Grid>
-                <Grid item xs={3}>
-                  <TextField
-                    variant="outlined"
-                    id="add-topic"
-                    fullWidth
-                    label="Topic to add:"
-                    name="add-topic"
-                    onChange={e => setAddTopic(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <Button variant='contained' color='primary' size='large'>
-                    Add Topic
-                  </Button>
+                <Grid container spacing={1}>
+                  <Grid item xs={3} align="center">
+                    <Autocomplete
+                      id="supporters"
+                      options= {dummySupporters}
+                      getOptionLabel={(option) => option.name}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Select a Supporter"
+                        />
+                      )}
+                      onChange={(e,v) => setSelectedSupporter(v)}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
             </ExpansionPanelDetails>
