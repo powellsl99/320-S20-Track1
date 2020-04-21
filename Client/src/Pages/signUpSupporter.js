@@ -99,6 +99,22 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 
+function hasLowerCase(str) {
+    return str.toUpperCase() != str;
+}
+function hasUpperCase(str) {
+  return str.toLowerCase() != str
+}
+
+function containsSpecial(str){
+ return /[\s~`!@#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?()\._]/g.test(str);
+}
+
+  function validatePass(pass){
+    return pass.length>=8 && hasUpperCase(pass) && hasLowerCase(pass) && containsSpecial(pass);
+  }
+
+
 export default function SignUp() {
   const classes = useStyles();
   const [email, setEmail] = useState("");
@@ -126,7 +142,8 @@ export default function SignUp() {
     && password.length > 0 && password2.length > 0
     && fname.length > 0 && lname.length > 0
     && validEmail(email) && supporterType.length >0
-    && employer.length > 0 && title.length > 0;
+    && employer.length > 0 && title.length > 0
+    && validatePass(password);
   }
 
   function samePass(pass, pass2){
@@ -163,53 +180,53 @@ export default function SignUp() {
     }
 
     var username = email;
-    var attributeList = []
-    var emailData = {
-      Name : 'email',
-      Value : email
-    };
-    var role = {
-        Name : 'custom:role',
-        Value : 'Supporter'
-    };
-    var first_name = {
-        Name : 'custom:first_name',
-        Value : fname
-    };
-    var last_name = {
-        Name : 'custom:last_name',
-        Value : lname
-    };
+    // var attributeList = []
+    // var emailData = {
+    //   Name : 'email',
+    //   Value : email
+    // };
+    // var role = {
+    //     Name : 'custom:role',
+    //     Value : 'Supporter'
+    // };
+    // var first_name = {
+    //     Name : 'custom:first_name',
+    //     Value : fname
+    // };
+    // var last_name = {
+    //     Name : 'custom:last_name',
+    //     Value : lname
+    // };
+    //
+    // var supporter_type ={
+    //   Name: 'custom:supporter_type',
+    //   Value: supporterType
+    // }
+    //
+    // var employerData = {
+    //   Name: 'employer',
+    //   Value: employer
+    //}
 
-    var supporter_type ={
-      Name: 'custom:supporter_type',
-      Value: supporterType
-    }
-
-    var employerData = {
-      Name: 'employer',
-      Value: employer
-    }
-
-    var titleData = {
-      Name: 'title',
-      Value: title
-    }
-
-    var teamData ={
-      Name: 'team',
-      Value: team
-    }
+    // var titleData = {
+    //   Name: 'title',
+    //   Value: title
+    // }
+    //
+    // var teamData ={
+    //   Name: 'team',
+    //   Value: team
+    // }
 
 
-    attributeList.push(new CognitoUserAttribute(emailData));
-    attributeList.push(new CognitoUserAttribute(role));
-    attributeList.push(new CognitoUserAttribute(first_name));
-    attributeList.push(new CognitoUserAttribute(last_name));
-    attributeList.push(new CognitoUserAttribute(supporter_type));
-    attributeList.push(new CognitoUserAttribute(employerData));
-    attributeList.push(new CognitoUserAttribute(titleData));
-    attributeList.push(new CognitoUserAttribute(teamData));
+    // attributeList.push(new CognitoUserAttribute(emailData));
+    // attributeList.push(new CognitoUserAttribute(role));
+    // attributeList.push(new CognitoUserAttribute(first_name));
+    // attributeList.push(new CognitoUserAttribute(last_name));
+    // attributeList.push(new CognitoUserAttribute(supporter_type));
+    // attributeList.push(new CognitoUserAttribute(employerData));
+    // attributeList.push(new CognitoUserAttribute(titleData));
+    // attributeList.push(new CognitoUserAttribute(teamData));
         event.preventDefault();
 
 
@@ -217,7 +234,17 @@ export default function SignUp() {
             const signUpResponse = await Auth.signUp({
               username,
               password,
-              attributeList
+              attributes:{
+                email: email,
+                given_name: fname,
+                family_name: lname,
+                profile: "Supporter",
+                locale: "supporterType",
+                zoneinfo: employer,
+                nickname: title,
+                address: "team"
+
+              },
             })
 
             setOpen(true)
@@ -227,7 +254,7 @@ export default function SignUp() {
           }catch(error){
             console.log("AHHHHHHHHHHWOIPOQIWPU0930838-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             console.log(error)
-            alert(error)
+            alert(error.message)
           }
         }
 
@@ -294,6 +321,13 @@ export default function SignUp() {
             autoFocus
             onChange={e => setFname(e.target.value)}
           />
+          {!validEmail(email) && email.length > 0 && (
+            <FormControl className={classes.error} error>
+              <FormHelperText>
+                Please enter a valid email
+              </FormHelperText>
+            </FormControl>
+          )}
           <TextField
             variant="outlined"
             margin="normal"
@@ -305,6 +339,7 @@ export default function SignUp() {
             autoComplete="lname"
             onChange={e => setLname(e.target.value)}
           />
+
           <TextField
             variant="outlined"
             margin="normal"
@@ -316,10 +351,10 @@ export default function SignUp() {
             autoComplete="email"
             onChange={e => setEmail(e.target.value)}
           />
-          {!validEmail(email) && email.length > 0 && (
+          {!validatePass(password) && password.length > 0 && (
             <FormControl className={classes.error} error>
               <FormHelperText>
-                Please enter a valid email
+              Your password should be at least 8 characters long and should include a lowercase, uppercase, and special character.
               </FormHelperText>
             </FormControl>
           )}
@@ -335,6 +370,13 @@ export default function SignUp() {
             autoComplete="current-password"
             onChange={e => setPassword(e.target.value)}
           />
+          {!samePass(password, password2) && password.length > 0 && password2.length > 0 && (
+            <FormControl className={classes.error} error>
+              <FormHelperText>
+                Passwords do not match
+              </FormHelperText>
+            </FormControl>
+          )}
           <TextField
             variant="outlined"
             margin="normal"
@@ -348,16 +390,10 @@ export default function SignUp() {
             onChange={e => setPassword2(e.target.value)}
             onKeyPress={handleKeyPress}
           />
-          {!samePass(password, password2) && password.length > 0 && password2.length > 0 && (
-            <FormControl className={classes.error} error>
-              <FormHelperText>
-                Passwords do not match
-              </FormHelperText>
-            </FormControl>
-          )}
+
           <br/><br/>
           <Autocomplete
-            multiple
+            //multiple
             id="supporter-types"
             options= {supporterTypes}
             renderInput={(params) => (
@@ -393,7 +429,7 @@ export default function SignUp() {
           />
           <br/><br/>
           <Autocomplete
-            multiple
+          //  multiple
             id="teams"
             options= {teams}
             renderInput={(params) => (
@@ -435,25 +471,17 @@ export default function SignUp() {
               <Typography gutterBottom>
               A confirmation email has been sent to {email}. Click on the confirmation link in the email to activate your account.
               </Typography>
-              <Typography gutterBottom>
-              An admin to review your submission. You will get an email
-              when an admin makes a decision.
-              </Typography>
-              <Typography gutterBottom>
-              If you are accepted as a supporter, you can sign in using the credentials you
-              supplied.
-              </Typography>
             </DialogContent>
             <DialogActions>
-              <Button autoFocus href="/login" color="primary">
-                Back to sign in
+              <Button autoFocus href="/login" color="primary" variant="contained">
+                Back to Sign In
               </Button>
             </DialogActions>
           </Dialog>
           <Grid container>
             <Grid item xs>
               <Link href="/login" variant="body2">
-                Back to sign in
+                Back to Sign In
               </Link>
             </Grid>
           </Grid>

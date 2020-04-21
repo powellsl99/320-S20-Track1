@@ -74,7 +74,7 @@ export default function SignUp() {
   const [password2, setPassword2] = useState("");
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
-  const [redirect, setRedirect] = useState(false);
+  // const [redirect, setRedirect] = useState(false);
   const [open, setOpen] = useState(false);
 
 
@@ -86,25 +86,45 @@ export default function SignUp() {
 
 
   function validateForm() {
-    return password===password2 && email.length > 0
-    && password.length > 0 && password2.length > 0
+    return email.length > 0
     && fname.length > 0 && lname.length > 0
-    && validEmail(email);
+    && validEmail(email)
+    && validatePass(password)
+    && samePass(password,password2);
   }
 
   function samePass(pass, pass2){
     return password===password2;
   }
 
+function hasLowerCase(str) {
+    return str.toUpperCase() != str;
+}
+function hasUpperCase(str) {
+  return str.toLowerCase() != str
+}
+
+function containsSpecial(str){
+ return /[\s~`!@#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?()\._]/g.test(str);
+}
+
+
+
+  function validatePass(pass){
+    return pass.length>=8 && hasUpperCase(pass) && hasLowerCase(pass) && containsSpecial(pass);
+  }
+
+
+
   function validEmail(address) {
     return !! address.match(/.+@.+/);
   }
 
-  useEffect(() => {
-      console.log("@@@@@")
-      return (
-      <Redirect to='/login' />);
-    }, [])
+  // useEffect(() => {
+  //     console.log("@@@@@")
+  //     return (
+  //     <Redirect to='/login' />);
+  //   }, [])
 
 const handleSubmit = async event => {
   var username = email;
@@ -114,15 +134,15 @@ const handleSubmit = async event => {
     Value : email
   };
   var role = {
-      Name : 'custom:role',
+      Name : 'profile',
       Value : 'Student'
   };
   var first_name = {
-      Name : 'custom:first_name',
+      Name : 'given name',
       Value : fname
   };
   var last_name = {
-      Name : 'custom:last_name',
+      Name : 'pjdlfjlkj',
       Value : lname
   };
   attributeList.push(new CognitoUserAttribute(emailData));
@@ -136,10 +156,17 @@ const handleSubmit = async event => {
           const signUpResponse = await Auth.signUp({
             username,
             password,
-            attributeList
+            attributes:{
+              email: email,
+              given_name: fname,
+              family_name: lname,
+              profile: "Student",
+              //preferred_username: "default"
+            },
+
           })
-          console.log('Redirect$$$$$$$$')
-          setRedirect(true);
+          // console.log('Redirect$$$$$$$$')
+          // setRedirect(true);
           setOpen(true);
 
         }catch(error){
@@ -216,6 +243,13 @@ const handleSubmit = async event => {
               </FormHelperText>
             </FormControl>
           )}
+          {!validatePass(password) && password.length > 0 && (
+            <FormControl className={classes.error} error>
+              <FormHelperText>
+              Your password should be at least 8 characters long and should include a lowercase, uppercase, and special character.
+              </FormHelperText>
+            </FormControl>
+          )}
           <TextField
             variant="outlined"
             margin="normal"
@@ -228,6 +262,13 @@ const handleSubmit = async event => {
             autoComplete="current-password"
             onChange={e => setPassword(e.target.value)}
           />
+          {!samePass(password, password2) && password.length > 0 && password2.length > 0 && (
+            <FormControl className={classes.error} error>
+              <FormHelperText>
+                Passwords do not match
+              </FormHelperText>
+            </FormControl>
+          )}
           <TextField
             variant="outlined"
             margin="normal"
@@ -241,20 +282,13 @@ const handleSubmit = async event => {
             onChange={e => setPassword2(e.target.value)}
             onKeyPress={handleKeyPress}
           />
-          {!samePass(password, password2) && password.length > 0 && password2.length > 0 && (
-            <FormControl className={classes.error} error>
-              <FormHelperText>
-                Passwords do not match
-              </FormHelperText>
-            </FormControl>
-          )}
           <Typography align="center" variant="body2">
             By requesing an account you agree to ReachOut's
           </Typography>
           <Grid container align="center">
             <Grid item xs>
               <Link href="/tos" variant="body2" justify="center">
-                Terms and Condtitions
+                Terms and Conditions
               </Link>
             </Grid>
           </Grid>
@@ -268,7 +302,7 @@ const handleSubmit = async event => {
           >
             Create Account
           </Button>
-          <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+          <Dialog alignItems= "center" onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
             <DialogTitle id="customized-dialog-title" onClose={handleClose}>
               Confirm Your Email Address
             </DialogTitle>
@@ -278,15 +312,15 @@ const handleSubmit = async event => {
               </Typography>
             </DialogContent>
             <DialogActions>
-              <Button autoFocus href="/login" color="primary">
-                Back to sign in
+              <Button variant="contained" align = "center" autoFocus href="/login" color="primary">
+                Back to Sign In
               </Button>
             </DialogActions>
           </Dialog>
           <Grid container>
             <Grid item xs>
               <Link href="/login" variant="body2">
-                Back to sign in
+                Back to Sign In
               </Link>
             </Grid>
             <Grid item>

@@ -71,33 +71,37 @@ export default function SignIn() {
               const user = await Auth.signIn(email, password);
               console.log(user);
               if (user.signInUserSession.idToken !== undefined) {
-                alert("Login Successful!");
                 console.log("hooray! we have json!");
                 // console.log(json);
                 const cookies = new Cookies();
                 var authToken = user.signInUserSession.idToken.jwtToken;
                 var base64Url = authToken.split('.')[1];
-                var decodedValue = JSON.parse(window.atob(base64Url));
-                console.log(decodedValue)
+                var json = JSON.parse(window.atob(base64Url));
+
+                console.log(json)
                 console.log("$$$$$$$$");
 
-                // cookies.remove("email");
-                // cookies.remove("firstName");
-                // cookies.remove("lastName");
-                // cookies.remove("role");
-                // cookies.remove("token");
-                // cookies.set("email", json.email, {
-                //   path: "/"
-                // });
-                // cookies.set("firstName", json.f_name, {
-                //   path: "/"
-                // });
-                // cookies.set("lastName", json.l_name, {
-                //   path: "/"
-                // });
-                //cookies.set("role", loginType, { path: "/" });
-                // cookies.set("token", user.signInUserSession.accessToken, { path: "/" });
-                // window.location.reload();
+                cookies.remove("email");
+                cookies.remove("firstName");
+                cookies.remove("lastName");
+                cookies.remove("role");
+                cookies.remove("token");
+
+                cookies.set("email", json.email, {
+                  path: "/"
+                });
+                cookies.set("firstName", json.given_name, {
+                  path: "/"
+                });
+                cookies.set("lastName", json.family_name, {
+                  path: "/"
+                });
+                cookies.set("role", json.profile, { path: "/" });
+
+                //cookies.set("userId", json.preferred_username, { path: "/" });
+
+                cookies.set("token", user.signInUserSession.accessToken, { path: "/" });
+                window.location.reload();
               }
             }catch(error){
               alert("Invalid credentials");
