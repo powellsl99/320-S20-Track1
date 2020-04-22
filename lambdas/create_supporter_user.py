@@ -72,6 +72,7 @@ def create_supporter(event, context):
     new_id = query(sql, sql_parameters)['records'][0][0]['longValue'] + 1
 
     # insert new user into users table
+    # sets user only as student until verification
     sql = """INSERT INTO users(id,first_name,last_name, email, preferred_name, picture, bio, pronouns, gender, phone, is_blocked, GCal_permission, hashed_password, salt_key, user_type, is_admin, is_supporter, is_student) \
     VALUES (:new_id, :first_name, :last_name, :email,'pn','pic','bio','pro','gen','pho',false, true, :password,'salt', 'supporter', false, false, true)"""
 
@@ -93,6 +94,7 @@ def create_supporter(event, context):
         }
 
     # inserts user into supporters table with same user_id
+    # supporter title is_pending
     sql = """INSERT INTO supporters(supporter_id, user_id, employer, title, team, feedback, rating, team_name, is_pending, office, google_doc_link) \
             VALUES (:new_id, :new_id , :employer, :title, :team, false, 0, 'team name', true, 'office', 'google_doc_link')"""
 
