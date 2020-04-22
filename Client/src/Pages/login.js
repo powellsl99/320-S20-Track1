@@ -67,47 +67,48 @@ export default function SignIn() {
   const handleSubmit = async event =>{
     event.preventDefault();
     var username = email;
-            try{
-              const user = await Auth.signIn(email, password);
-              console.log(user);
-              if (user.signInUserSession.idToken !== undefined) {
-                console.log("hooray! we have json!");
-                // console.log(json);
-                const cookies = new Cookies();
-                var authToken = user.signInUserSession.idToken.jwtToken;
-                var base64Url = authToken.split('.')[1];
-                var json = JSON.parse(window.atob(base64Url));
+      try{
+        const user = await Auth.signIn(email, password);
+        console.log(user);
+        if (user.signInUserSession.accessToken !== undefined) {
+          console.log("hooray! we have json!");
+          // console.log(json);
+          const cookies = new Cookies();
+          var authToken = user.signInUserSession.idToken.jwtToken;
+          var base64Url = authToken.split('.')[1];
+          var json = JSON.parse(window.atob(base64Url));
 
-                console.log(json)
-                console.log("$$$$$$$$");
+          console.log(json)
+          console.log("$$$$$$$$");
 
-                cookies.remove("email");
-                cookies.remove("firstName");
-                cookies.remove("lastName");
-                cookies.remove("role");
-                cookies.remove("token");
+          cookies.remove("email");
+          cookies.remove("firstName");
+          cookies.remove("lastName");
+          cookies.remove("role");
+          cookies.remove("token");
+          cookies.remove("id");
 
-                cookies.set("email", json.email, {
-                  path: "/"
-                });
-                cookies.set("firstName", json.given_name, {
-                  path: "/"
-                });
-                cookies.set("lastName", json.family_name, {
-                  path: "/"
-                });
-                cookies.set("role", json.profile, { path: "/" });
+          cookies.set("email", json.email, {
+            path: "/"
+          });
+          cookies.set("firstName", json.given_name, {
+            path: "/"
+          });
+          cookies.set("lastName", json.family_name, {
+            path: "/"
+          });
+          cookies.set("role", json.profile, { path: "/" });
 
-                //cookies.set("userId", json.preferred_username, { path: "/" });
+          cookies.set("id", json.preferred_username, { path: "/" });
 
-                cookies.set("token", user.signInUserSession.accessToken, { path: "/" });
-                window.location.reload();
-              }
-            }catch(error){
-              alert("Invalid credentials");
-              console.log(error);
-            }
-          }
+          cookies.set("token", user.signInUserSession.accessToken, { path: "/" });
+          window.location.reload();
+        }
+      }catch(error){
+        alert("Invalid credentials");
+        console.log(error);
+      }
+    }
 
       // .then(response => {
       //   console.log(response);

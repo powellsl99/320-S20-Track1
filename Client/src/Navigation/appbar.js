@@ -100,6 +100,7 @@ export default function MenuAppBar() {
     cookies.remove("lastName");
     cookies.remove("role");
     cookies.remove("token");
+    cookies.remove("id");
     window.location.reload();
   }
 

@@ -1,4 +1,4 @@
-import React, { useState, component, useEffect } from "react";
+import React, { useState, } from "react";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
@@ -9,11 +9,7 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import users from "../Data/users.json"
-import Cookies from "universal-cookie";
 import { Auth } from "aws-amplify";
-import { Redirect } from 'react-router-dom';
-import { CognitoUserAttribute } from 'amazon-cognito-identity-js';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -98,10 +94,10 @@ export default function SignUp() {
   }
 
 function hasLowerCase(str) {
-    return str.toUpperCase() != str;
+    return str.toUpperCase() !== str;
 }
 function hasUpperCase(str) {
-  return str.toLowerCase() != str
+  return str.toLowerCase() !== str
 }
 
 function containsSpecial(str){
@@ -128,7 +124,7 @@ function containsSpecial(str){
 
 const handleSubmit = async event => {
   var username = email;
-  var attributeList = []
+  {/*var attributeList = []
   var emailData = {
     Name : 'email',
     Value : email
@@ -148,7 +144,7 @@ const handleSubmit = async event => {
   attributeList.push(new CognitoUserAttribute(emailData));
   attributeList.push(new CognitoUserAttribute(role));
   attributeList.push(new CognitoUserAttribute(first_name));
-  attributeList.push(new CognitoUserAttribute(last_name));
+attributeList.push(new CognitoUserAttribute(last_name));*/}
       event.preventDefault();
 
 
@@ -161,7 +157,7 @@ const handleSubmit = async event => {
               given_name: fname,
               family_name: lname,
               profile: "Student",
-              //preferred_username: "default"
+              preferred_username: "default"
             },
 
           })
@@ -283,7 +279,7 @@ const handleSubmit = async event => {
             onKeyPress={handleKeyPress}
           />
           <Typography align="center" variant="body2">
-            By requesing an account you agree to ReachOut's
+            By requesting an account you agree to ReachOut's
           </Typography>
           <Grid container align="center">
             <Grid item xs>
@@ -325,7 +321,7 @@ const handleSubmit = async event => {
             </Grid>
             <Grid item>
               <Link href="/signup-supporter" variant="body2">
-                Want to request a supporter account? Sign Up
+                Request Supporter Account
               </Link>
             </Grid>
           </Grid>

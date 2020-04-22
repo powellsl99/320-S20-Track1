@@ -100,10 +100,10 @@ const DialogActions = withStyles((theme) => ({
 }))(MuiDialogActions);
 
 function hasLowerCase(str) {
-    return str.toUpperCase() != str;
+    return str.toUpperCase() !== str;
 }
 function hasUpperCase(str) {
-  return str.toLowerCase() != str
+  return str.toLowerCase() !== str
 }
 
 function containsSpecial(str){
@@ -156,7 +156,6 @@ export default function SignUp() {
 
   function handleSubmitButton(event){
     handleSubmit(event)
-    handleClickOpen()
   }
 
   const handleSubmit = async event => {
@@ -171,12 +170,6 @@ export default function SignUp() {
         error=true;
         break;
       }
-    }
-    if (!error){
-      var bcrypt = require('bcryptjs');
-      var salt = bcrypt.genSaltSync(10);
-      var hash = bcrypt.hashSync(password, salt);
-      setPassword(hash)
     }
 
     var username = email;
@@ -242,13 +235,15 @@ export default function SignUp() {
                 locale: "supporterType",
                 zoneinfo: employer,
                 nickname: title,
-                address: "team"
+                address: "team",
+                preferred_username: "default",
 
               },
             })
 
             setOpen(true)
             console.log('Redirect$$$$$$$$')
+            handleClickOpen()
             //setRedirect(true);
 
           }catch(error){
