@@ -66,12 +66,21 @@ export default function AdminSettings() {
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedBlockedUser, setSelectedBlockedUser] = useState("");
   const [selectedSupporterTopics, setSelectedSupporterTopics] = useState([]);
+  const [selectedSupporterTags, setSelectedSupporterTags] = useState([]);
 
   function handleTopics(v){
     if (v == null){
       setSelectedSupporterTopics([])
     }else{
       setSelectedSupporterTopics(v.topics)
+    }
+  }
+
+  function handleTags(v){
+    if (v == null){
+      setSelectedSupporterTags([])
+    }else{
+      setSelectedSupporterTags(v.tags)
     }
   }
 
@@ -200,7 +209,7 @@ export default function AdminSettings() {
                     />
                   </Grid>
                   <Grid item xs={3}>
-                  <br/>
+                    <br/>
                     <Autocomplete
                       id="supporters"
                       options= {selectedSupporterTopics}
@@ -212,6 +221,37 @@ export default function AdminSettings() {
                         />
                       )}
                     />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <br/>
+                    <Button variant='contained' color='primary' size='large'>
+                      Remove Topic
+                    </Button>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={1}>
+                  <Grid item xs={3} align="center">
+                    <br/>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <br/>
+                    <Autocomplete
+                      id="supporters"
+                      options= {Topics}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Add to Supporter"
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <br/>
+                    <Button variant='contained' color='primary' size='large'>
+                      Add Topic
+                    </Button>
                   </Grid>
                 </Grid>
               </Grid>
@@ -228,40 +268,105 @@ export default function AdminSettings() {
               </Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
-              <Grid container spacing={1}>
-                <Grid item xs={3}>
-                  <Autocomplete
-                    id="tags"
-                    options= {Tags}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        label="Tags"
-                      />
-                    )}
-                    onChange={(e,v) => setSelectedTag(v)}
-                  />
+              <Grid container direction='column'>
+                <Grid container spacing={1}>
+                  <Grid item xs={3}>
+                    <Autocomplete
+                      id="tags"
+                      options= {Tags}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Tags"
+                        />
+                      )}
+                      onChange={(e,v) => setSelectedTag(v)}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Button variant='contained' color='primary' size='large'>
+                      Delete Tag
+                    </Button>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <TextField
+                      variant="outlined"
+                      id="add-tag"
+                      fullWidth
+                      label="Tag to add:"
+                      name="add-tag"
+                      onChange={e => setAddTag(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Button variant='contained' color='primary' size='large'>
+                      Add Tag
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs={2}>
-                  <Button variant='contained' color='primary' size='large'>
-                    Delete Tag
-                  </Button>
+                <Grid container spacing={1}>
+                  <Grid item xs={3} align="center">
+                    <br/>
+                    <Autocomplete
+                      id="supporters"
+                      options= {dummySupporters}
+                      getOptionLabel={(option) => option.name}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Select a Supporter"
+                        />
+                      )}
+                      onChange={(e,v) => handleTags(v)}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <br/>
+                    <Autocomplete
+                      id="supporters"
+                      options= {selectedSupporterTags}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Select Supporter's Tag"
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <br/>
+                    <Button variant='contained' color='primary' size='large'>
+                      Remove Tag
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs={3}>
-                  <TextField
-                    variant="outlined"
-                    id="add-tag"
-                    fullWidth
-                    label="Tag to add:"
-                    name="add-tag"
-                    onChange={e => setAddTag(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <Button variant='contained' color='primary' size='large'>
-                    Add Tag
-                  </Button>
+                <Grid container spacing={1}>
+                  <Grid item xs={3} align="center">
+                    <br/>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <br/>
+                    <Autocomplete
+                      id="supporters"
+                      options= {Tags}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Add to Supporter"
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <br/>
+                    <Button variant='contained' color='primary' size='large'>
+                      Add Tag
+                    </Button>
+                  </Grid>
                 </Grid>
               </Grid>
             </ExpansionPanelDetails>
