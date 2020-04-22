@@ -49,6 +49,11 @@ export default function AdminSettings() {
       name:"Brian Krusell",
       tags: ["Industry", "Networking"],
       topics: ["Resume Review","Job Search","Cover Letter"],
+    },
+    {
+      name:"Sam the Minuteman",
+      tags: ["Basketball", "Hockey","Football"],
+      topics: ["Hype","Giving Pizza"],
     }
   ]
 
@@ -60,8 +65,15 @@ export default function AdminSettings() {
   const [addTag, setAddTag] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedBlockedUser, setSelectedBlockedUser] = useState("");
-  const [selectedSupporter, setSelectedSupporter] = useState({});
+  const [selectedSupporterTopics, setSelectedSupporterTopics] = useState([]);
 
+  function handleTopics(v){
+    if (v == null){
+      setSelectedSupporterTopics([])
+    }else{
+      setSelectedSupporterTopics(v.topics)
+    }
+  }
 
   return (
     // <Container component="main" maxWidth="xs" align="center">
@@ -172,6 +184,7 @@ export default function AdminSettings() {
                 </Grid>
                 <Grid container spacing={1}>
                   <Grid item xs={3} align="center">
+                    <br/>
                     <Autocomplete
                       id="supporters"
                       options= {dummySupporters}
@@ -183,7 +196,21 @@ export default function AdminSettings() {
                           label="Select a Supporter"
                         />
                       )}
-                      onChange={(e,v) => setSelectedSupporter(v)}
+                      onChange={(e,v) => handleTopics(v)}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                  <br/>
+                    <Autocomplete
+                      id="supporters"
+                      options= {selectedSupporterTopics}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Select Supporter's Topic"
+                        />
+                      )}
                     />
                   </Grid>
                 </Grid>
