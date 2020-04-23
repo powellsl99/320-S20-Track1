@@ -110,7 +110,8 @@ export default function MenuAppBar(props) {
             .then(res => res.json())
             .then(json => {
             
-              SetPossibleRoles(json["user_roles"]);
+              //SetPossibleRoles(json["user_roles"]);
+              SetPossibleRoles(['Student', 'Supporter', 'Admin'])
             })
             .catch(error => {
                 console.log(error);
@@ -144,22 +145,7 @@ export default function MenuAppBar(props) {
     cookies.remove("token");
     window.location.reload();
   }
- function renderNavBarButtonsBasedOnRole(){
-   let RenderButtons=[];
-   if(role.toLowerCase()==PossibleRoles[0]){
-     return(<div style={{width:'40%',float:'right'}}><Button variant="text" href="/match" className={classes.button}>Find A Supporter</Button>
-     <Button variant="text" href="/appointments" className={classes.button}>Appointments</Button>
-     <Button variant="text" href="/FAQ" className={classes.button}>FAQ</Button></div>);
-
-   }
-  
-    return(<div style={{width:'300px',float:'right'}}>>
-    <Button variant="text" href="/appointments" className={classes.button}>Appointments</Button>
-    <Button variant="text" href="/FAQ" className={classes.button}>FAQ</Button></div>);
-    
-  
-
- }
+ 
 //  alert(PossibleRoles);
 //   const RoleNameStudent=PossibleRoles[0].charAt(0).toUpperCase() + PossibleRoles[0].slice(1);
 //   const RoleNameSupporter=PossibleRoles[1].charAt(0).toUpperCase() + PossibleRoles[1].slice(1);

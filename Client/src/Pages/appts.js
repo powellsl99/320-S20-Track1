@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppointmentCard from '../components/AppointmentCard';
@@ -6,11 +6,11 @@ import Drawer from '@material-ui/core/Drawer';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme, TextField, Grid} from '@material-ui/core';
 import Menu from "../Navigation/appbar.js";
-import appointments from "../Data/appointments2.js"
 import Cookies from "universal-cookie";
+import convertTime from "./FindSupporter/convertTime";
 
 const cookies = new Cookies();
-const role = cookies.get("role");
+const role = cookies.get("role")
 
 const drawerWidth = "25%";
 
@@ -59,7 +59,8 @@ const useStyles = makeStyles((theme) => ({
 const ResponsiveDrawer = (props) => {
   //Gets info from the cookies
   //get users role
-  console.log(appointments)
+
+  var cookies = new Cookies();
   const today = new Date();
   const { container } = props;
   const [selectedDate, handleDateChange] = React.useState(new Date());
@@ -72,15 +73,19 @@ const ResponsiveDrawer = (props) => {
   const [name,setName]=React.useState("");
   const [rating,setRating]=React.useState(0);
   const [search,setSearch]=React.useState("");
+  const [appointments, setAppointments] = React.useState([]);
+  const [isLoaded, setLoaded] = React.useState(false);
 
 
   const blockTime=30;
   if(role == 'Student'){
+    
     var filteredAppointmentList = (appointments.filter(
-      appt => String(appt.supporter.toLowerCase()).includes(search.toLowerCase())))
+      appt => String((appt.supporterFN +" " +appt.supporterLN).toLowerCase()).includes(search.toLowerCase())))
   }
   if(role !== 'Student'){
-    var filteredAppointmentList = []
+    var filteredAppointmentList = (appointments.filter(
+      appt => String((appt.studentFN +" " +appt.studentLN).toLowerCase()).includes(search.toLowerCase())))
   }
   const updateList = (val) => {
     setName(val);
@@ -115,7 +120,63 @@ const ResponsiveDrawer = (props) => {
     return false
   }
 
+  function convertdate(time, duration){
+    var hours = parseInt(time.substring(11,13))*60;
+    var minutes = parseInt(time.substring(14,16));
+    return convertTime(hours + minutes + duration);
+  }
 
+
+  
+
+  useEffect(() => {
+    var id = cookies.get('id');
+    
+    console.log(role.toLowerCase);
+    if (role === 'Student'){
+      fetch('https://7jdf878rej.execute-api.us-east-2.amazonaws.com/test/appointments/students/%7Bid%7D?student_id='+1)
+      .then(res => res.json())
+      .then(json => {
+          console.log(json.body);
+          setAppointments(json.body);
+          setLoaded(true);
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    }
+    else if(role === 'Supporter'){
+      fetch('https://7jdf878rej.execute-api.us-east-2.amazonaws.com/test/appointments/students/%7Bid%7D?student_id='+1)
+      .then(res => res.json())
+      .then(json => {
+          console.log(json.body);
+          setAppointments(json.body);
+          setLoaded(true);
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    }
+    else{
+      fetch('https://7jdf878rej.execute-api.us-east-2.amazonaws.com/test/appointments/students/%7Bid%7D?student_id='+1)
+      .then(res => res.json())
+      .then(json => {
+          console.log(json.body);
+          setAppointments(json.body);
+          setLoaded(true);
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    }
+
+  },[]);
+
+
+  if(!isLoaded){
+    return <Typography>Loading.....</Typography>
+  }
+  else{
   
   return (
     <div className={classes.root}>
@@ -123,6 +184,8 @@ const ResponsiveDrawer = (props) => {
       <AppBar position="fixed" className={classes.appBar}>
         <Menu/>
       </AppBar>
+
+      
       <Drawer
         className={classes.drawer}
         variant="permanent"
@@ -151,27 +214,30 @@ const ResponsiveDrawer = (props) => {
       </div> 
       </Drawer>
       <main className={classes.content}>
+
+        
         
         {filteredAppointmentList.length>0 && <Typography align="center" variant="h4">Upcoming Appointments</Typography>}
         {filteredAppointmentList.length===0 && <Typography align="center" variant="h4">We couldnt find an appointment with those attributes. Please try widening your search.</Typography>}
         <br/>
         <br/>
         {filteredAppointmentList.map((appointment) => (
-                today < new Date(appointment.date) &&
+                today < new Date(appointment.time_scheduled) &&
                   <Grid lg = {12}>
                     <AppointmentCard 
                       upcoming = {true}
-                      role = {role}
-                      subject = {appointment.subject}
+                      role = {cookies.get('role')}
+                      subject = {appointment.type}
                       location = {appointment.location}
-                      medium = {appointment.medium}
-                      start = {appointment.start}
-                      end = {appointment.end}
-                      date = {appointment.date}
-                      supporter = {appointment.supporter}
-                      student = {appointment.student}
-                      supporterProfilePic = {appointment.supporterProfilePic}
-                      studentProfilePic = {appointment.studentProfilePic}
+                      medium = {appointment.method}
+                      start = {convertdate(appointment.time_scheduled, 0)}
+                      end = {convertdate(appointment.time_scheduled, appointment.duration)}
+                      date = {appointment.time_scheduled.substring(0, 11)}
+                      supporter = {appointment.supporterFN + " " + appointment.supporterLN}
+                      student = {appointment.studentFN + " " + appointment.studentLN}
+                      supporterProfilePic = {appointment.supporterPic}
+                      studentProfilePic = {""}
+                      comments = {appointment.comment}
                     />
                   </Grid>
                 
@@ -186,23 +252,25 @@ const ResponsiveDrawer = (props) => {
                 <Grid lg = {12}>
                   <AppointmentCard 
                     upcoming = {false}
-                    role = {role}
-                    subject = {appointment.subject}
+                    role = {cookies.get('role')}
+                    subject = {appointment.type}
                     location = {appointment.location}
-                    medium = {appointment.medium}
-                    start = {appointment.start}
-                    end = {appointment.end}
-                    date = {appointment.date}
-                    supporter = {appointment.supporter}
-                    student = {appointment.student}
-                    supporterProfilePic = {appointment.supporterProfilePic}
-                    studentProfilePic = {appointment.studentProfilePic}
+                    medium = {appointment.method}
+                    start = {convertdate(appointment.time_scheduled, 0)}
+                    end = {convertdate(appointment.time_scheduled, appointment.duration)}
+                    date = {appointment.time_scheduled.substring(0, 11)}
+                    supporter = {appointment.supporterFN + " " + appointment.supporterLN}
+                    student = {appointment.studentFN + " " + appointment.studentLN}
+                    supporterProfilePic = {appointment.supporterPic}
+                    studentProfilePic = {""}
+                    comment = {appointment.comment}
                   />
                 </Grid>
               ))}
       </main>
     </div>
   );
+  }
 }
 
 export default ResponsiveDrawer;
