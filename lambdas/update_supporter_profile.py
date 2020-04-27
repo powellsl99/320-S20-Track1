@@ -18,6 +18,20 @@ def lambda_handler(event, context):
         raise LambdaException("Invalid input: No user Id")
 
     supporter_id_param = [{'name' : 'supporter_id', 'value' : {'longValue' : supporter_id}}]
+    
+    #Check if supporter exists in each table
+    sql = "SELECT supporter_id FROM supporters WHERE supporter_id= :supporter_id"
+    existing_supporter = query(sql, supporter_id_param)
+
+    sql = "SELECT id FROM users WHERE id= :supporter_id"
+    existing_user = query(sql, supporter_id_param)
+
+    if(existing_supporter['records'] == []):
+        print("No existing Supporter Record.")
+        raise LambdaException("User does not exist")
+    if(existing_user['records'] == []):
+        print("No existing Supporter Record.")
+        raise LambdaException("User does not exist")
 
     #users table
     updated_user_vals = ""
@@ -41,44 +55,67 @@ def lambda_handler(event, context):
     # preferred name
     if 'preferred_name' in event:
         preferred_name = event['preferred_name']
+        updated_user_vals += "preferred_name='%s', " % (preferred_name)
     else:
         sql = "SELECT preferred_name FROM users WHERE id= :supporter_id"
-        preferred_name = query(sql, supporter_id_param)['records'][0][0]['stringValue']
-    updated_user_vals += "preferred_name='%s', " % (preferred_name)
+        preferred_name = query(sql, supporter_id_param)['records'][0][0]
+        if preferred_name['isNull']:
+            updated_user_vals += "preferred_name=NULL, "
+        else:
+            preferred_name = preferred_name['stringValue']
+            updated_user_vals += "preferred_name='%s', " % (preferred_name)
 
-    # (picture omitted)
+    # picture
+    if 'picture' in event:
+        picture = event['picture']
+        updated_user_vals += "picture='%s', " % (picture)
+    else:
+        sql = "SELECT picture FROM users WHERE id= :supporter_id"
+        picture = query(sql, supporter_id_param)['records'][0][0]
+        if picture['isNull']:
+            updated_user_vals += "picture=NULL, "
+        else:
+            picture = picture['stringValue']
+            updated_user_vals += "picture='%s', " % (picture)
 
     # bio
     if 'bio' in event:
         bio = event['bio']
+        updated_user_vals += "bio='%s', " % (bio)
     else:
         sql = "SELECT bio FROM users WHERE id= :supporter_id"
-        bio = query(sql, supporter_id_param)['records'][0][0]['stringValue']
-    updated_user_vals += "bio='%s', " % (bio)
+        bio = query(sql, supporter_id_param)['records'][0][0]
+        if bio['isNull']:
+            updated_user_vals += "bio=NULL, "
+        else:
+            bio = bio['stringValue']
+            updated_user_vals += "bio='%s', " % (bio)
 
     # pronouns
     if 'pronouns' in event:
         pronouns = event['pronouns']
+        updated_user_vals += "pronouns='%s', " % (pronouns)
     else:
         sql = "SELECT pronouns FROM users WHERE id= :supporter_id"
-        pronouns = query(sql, supporter_id_param)['records'][0][0]['stringValue']
-    updated_user_vals += "pronouns='%s', " % (pronouns)
-
-    # gender
-    if 'gender' in event:
-        pronouns = event['gender']
-    else:
-        sql = "SELECT gender FROM users WHERE id= :supporter_id"
-        pronouns = query(sql, supporter_id_param)['records'][0][0]['stringValue']
-    updated_user_vals += "pronouns='%s', " % (pronouns)
-
+        pronouns = query(sql, supporter_id_param)['records'][0][0]
+        if pronouns['isNull']:
+            updated_user_vals += "pronouns=NULL, "
+        else:
+            pronouns = pronouns['stringValue']
+            updated_user_vals += "pronouns='%s', " % (pronouns)
+        
     # phone
     if 'phone' in event:
         phone = event['phone']
+        updated_user_vals += "phone='%s'" % (phone)
     else:
         sql = "SELECT phone FROM users WHERE id= :supporter_id"
-        phone = query(sql, supporter_id_param)['records'][0][0]['stringValue']
-    updated_user_vals += "phone='%s'" % (phone)
+        phone = query(sql, supporter_id_param)['records'][0][0]
+        if phone['isNull']:
+            updated_user_vals += "phone=NULL"
+        else:
+            phone = phone['stringValue']
+            updated_user_vals += "phone='%s'" % (phone)
 
     # make query
     users_sql = (f"UPDATE users SET {updated_user_vals} WHERE id= :supporter_id")
@@ -89,7 +126,7 @@ def lambda_handler(event, context):
 
     
 
-    # supporters table
+    # update supporters table
 
     
     return {
