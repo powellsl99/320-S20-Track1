@@ -9,7 +9,7 @@ from package.query_db import query
 
 def submit_feedback(event,context):
     given_id = int(event['appointment_id'])
-    feedback = event['feedback']
+    feedback = event['feedback'])
     rating = int(event['rating'])
 
     #Check to see if the appointmnet id exists
