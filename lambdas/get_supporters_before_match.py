@@ -2,6 +2,7 @@ import json
 import boto3
 
 from package.query_db import query
+from package.lambda_exception import LambdaException
 from datetime import datetime
 from datetime import timedelta
 
@@ -28,6 +29,30 @@ def generate_scheduled_appt_dict():
 #    preference
 #}
 def generate_appt_blocks(scheduled_appts):
+    blocks_sql = "SELECT S.supporter_id, U.first_name, U.last_name, U.picture, S.rating, S.employer, S.title, S.office, (select medium from medium where medium_id = SM.medium_id), (select link from user_links where user_id = U.id and link_id = (select link_id from link where link_type = 'linkedin')), AB.start_date, AB.end_date, ST.specialization_type, T.tags, SPS.grad_student, (select major from major where major_id = SMP.major_id), AB.max_num_of_appts\
+    FROM users U, supporters S, supporter_mediums SM, appointment_block AB, specializations_for_block SFB,\
+    specialization_type ST, supporter_specializations SS, tags T, supporter_preferences_for_students SPS, supporter_major_preferences SMP\
+    WHERE U.id = S.user_id\
+    AND S.supporter_id = AB.supporter_id\
+    AND T.supporter_id = S.supporter_id\
+    AND SPS.supporter_id = S.supporter_id\
+    AND SMP.supporter_id = S.supporter_id\
+    AND AB.appointment_block_id = SFB.appointment_block_id\
+    AND SFB.specialization_type_id = ST.specialization_type_id\
+    AND ST.specialization_type_id = SS.specialization_type_id\
+    AND S.supporter_id = SS.supporter_id\
+    AND start_date < NOW() + interval '1h' * (select hours_before_appointment from sps where supporter_id = S.supporter_id)\
+    AND start_date BETWEEN :date_start AND :date_end;"
+
+    params = [{'name' : 'date_start', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_start}}, {'name' : 'date_end', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_end}}]
+
+    try:
+        blocks_data = query(blocks_sql, params)
+    except Exception as e:
+        raise LambdaException(str(e))
+    
+    valid_blocks = []
+    for block in blocks_data:
 
 #Break up available blocks into chunked blocks with one topic each where available times are broken up into segments of that topic duration
 def chunk_blocks(available_blocks):
