@@ -258,7 +258,7 @@ return RenderRoles;
         </Link>
       </MenuItem>
     )}
-      {(role===PossibleRoles[1]||role===PossibleRoles[2])  && (
+      {(role===PossibleRoles[1])  && (
       <MenuItem onClick={handleClose}>
         <Link href="/supporter-settings">
           <Typography component="h6" variant="h6">
