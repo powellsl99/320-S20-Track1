@@ -6,10 +6,35 @@ from package.lambda_exception import LambdaException
 from datetime import datetime
 from datetime import timedelta
 
+DATE_FORMAT = "%Y-%m-%d"
+TIME_FORMAT = "%H:%M:%S"
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 #Creates a dictionary of scheduled appointments in the form of:
 #Key: (supporter_id, day)
 #Value: List of {start, end} datetime objects sorted by starttime
 def generate_scheduled_appt_dict():
+
+#Creates dictionary storing all info about a block in correct format
+def build_block_obj(block, start_time, end_time):
+    block_obj = {}
+
+    block_obj['supporter_id'] = block[0]['longValue']
+    block_obj['name'] = block[1]['stringValue'] + " " + block[2]['stringValue']
+    block_obj['rating'] = block[4]['longValue']
+    block_obj['employer'] = block[5]['stringValue']
+    block_obj['title'] = block[6]['stringValue']
+    block_obj['office'] = block[7]['stringValue']
+    block_obj['medium'] = block[8]['stringValue']
+    block_obj['linkedin'] = block[9]['stringValue']
+    block_obj['topics'] = [block[12]['stringValue']]
+    block_obj['tags'] = block[13]['arrayValue']['stringValues']
+    block_obj['imgsrc'] = block[3]['stringValue']
+    block_obj['timeBlocks'] = [{'start' : start_time, 'end' : end_time}]
+    block_obj['day'] = datetime.strptime(block[10]['stringValue'][:10], DATE_FORMAT)
+    block_obj['preferences'] = {'grad_student' : block[13]['booleanValue'], 'major_prefs' : [block[14]['stringValue']]}
+
+    return block_obj
 
 #Create a list of objects representing supporter blocks with all supported topics and all scheduled times excluded
 #Available block: {
@@ -47,12 +72,30 @@ def generate_appt_blocks(scheduled_appts):
     params = [{'name' : 'date_start', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_start}}, {'name' : 'date_end', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_end}}]
 
     try:
-        blocks_data = query(blocks_sql, params)
+        blocks_data = query(blocks_sql, params)['records']
     except Exception as e:
         raise LambdaException(str(e))
     
-    valid_blocks = []
-    for block in blocks_data:
+    if blocks_query_data['records'] == []: #If response was empty
+        print("There are no appointment blocks available")
+        raise LambdaException("No availible appointments within provided date range")
+
+    else:
+        valid_blocks = []
+        for block in blocks_data:
+
+            start_time = datetime.strptime(block[10]['stringValue'][11:], TIME_FORMAT)
+            end_time = datetime.strptime(block[11]['stringValue'][11:], TIME_FORMAT)
+
+            supporter_id = block[0]['longValue']
+            day = datetime.strptime(block[7]['stringValue'][:10], DATE_FORMAT)
+            key_tuple = (supporter_id, day)
+
+            if key_tuple in scheduled_appts:
+                pass
+            else:
+                block_obj = build_block_obj(block, start_time, end_time)
+                valid_blocks.append(block_obj)
 
 #Break up available blocks into chunked blocks with one topic each where available times are broken up into segments of that topic duration
 def chunk_blocks(available_blocks):
