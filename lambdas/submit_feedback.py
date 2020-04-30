@@ -9,7 +9,7 @@ from package.query_db import query
 
 def submit_feedback(event,context):
     given_id = int(event['appointment_id'])
-    feedback = event['feedback'])
+    feedback = event(['feedback'])
     rating = int(event['rating'])
 
     #Check to see if the appointmnet id exists
@@ -38,33 +38,48 @@ def submit_feedback(event,context):
             }
         #If feedback was updated, update supporter rating and return correct status code
         else:
-            #query for sum of rating values from SAR (1)
-            sql1 = 'SELECT SUM(rating) FROM student_appointment_relation WHERE appointment_id = :given_id'
+            #query to get associated supporter id (1)
+            sql1 = 'SELECT supporter_id FROM student_appointment_relation SR WHERE SR.appointment_id = :given_id LIMIT 1'
             sql_parameters1 = [{'name':'given_id', 'value' : {'longValue' : given_id}}]
-            rating_sum = query(sql1,sql_parameters1)
+            supp_id_query = query(sql1,sql_parameters1)
+            supp_id = supp_id_query['records'][0][0]['longValue']
+            
+            #query to get sum of rating values for all appointments the supporter has had (2)
+            sql2 = 'SELECT SUM(rating) FROM student_appointment_relation WHERE rating IS NOT NULL AND supporter_id = :supp_id'
+            sql_parameters2 = [{'name':'supp_id', 'value' : {'longValue' : supp_id}}]
+            rating_sum_query = query(sql2,sql_parameters2)
+            rating_sum = int(rating_sum_query['recoreds'][0][0]['stringValue'])
 
-            #query for number of entries in SAR for specific supporter id (2)
-            sql2 = 'SELECT COUNT(rating) FROM student_appointment_relation WHERE rating IS NOT NULL'
-            sql_parameters2 = []
-            num_ratings = query(sql2,sql_parameters2)
+            #query to get number of entries in SAR for specific supporter id (3)
+            sql3 = 'SELECT COUNT(rating) FROM student_appointment_relation WHERE rating IS NOT NULL AND supporter_id = :supp_id'
+            sql_parameters3 = [{'name':'supp_id', 'value' : {'longValue' : supp_id}}]
+            num_ratings_query = query(sql3,sql_parameters3)
+            num_ratings = num_ratings_query['records'][0][0]['longValue']
 
-            #divide sum by number
-            new_rating = rating_sum/num_ratings
+            #divide sum by number of entries to get overall rating
+            new_rating = (rating_sum) / (num_ratings)
 
-            #query to get associated supporter (3)
-            sql3 = 'SELECT supporter_id FROM student_appointment_relation SR WHERE SR.appointment_id = :given_id LIMIT 1'
-            sql_parameters3 = [{'name':'given_id', 'value' : {'longValue' : given_id}}]
-            supp_id = query(sql3,sql_parameters3)
-
-            #query to update new rating to supporters table (4)
-            sql4 = 'UPDATE supporters SET rating = :new_rating  WHERE supporter_id = :supp_id'
-            sql_parameters4 = [{'name':'new_rating', 'value' : {'longValue' : new_rating}},
+            #query to update new overall rating to supporters table (4)
+            if(isinstance(new_rating, int)):
+                sql4 = 'UPDATE supporters SET rating = :new_rating  WHERE supporter_id = :supp_id'
+                sql_parameters4 = [{'name':'new_rating', 'value' : {'longValue' : new_rating}},
                                 {'name':'supp_id', 'value' : {'longValue' : supp_id}}]
-            query(sql4,sql_parameters4)
+                query(sql4,sql_parameters4)
 
-            return{
-                'body': json.dumps("Appointment feedback updated"),
-                'statudCode': 200
-            }
+                return{
+                    'body': json.dumps("Appointment feedback updated"),
+                    'statudCode': 200
+                }
+            if(isinstance(new_rating, float)):
+                sql4 = 'UPDATE supporters SET rating = :new_rating  WHERE supporter_id = :supp_id'
+                sql_parameters4 = [{'name':'new_rating', 'value' : {'doubleValue' : new_rating}},
+                                {'name':'supp_id', 'value' : {'longValue' : supp_id}}]
+                query(sql4,sql_parameters4)
+
+                return{
+                    'body': json.dumps("Appointment feedback updated"),
+                    'statudCode': 200
+                }
+
         
 
