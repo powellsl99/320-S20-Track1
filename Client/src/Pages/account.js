@@ -13,6 +13,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Button from "@material-ui/core/Button";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import Topics from "../components/topics.js";
 import Tags from "../components/tags.js";
 
@@ -224,7 +225,7 @@ export default function StudentSettings() {
     "Stockbridge School of Agriculture",
   ];
 
-  const [first_name, setFirstName] = useState("Madeline");
+  const [first_name, setFirstName] = useState("");
   const [preferred_name, setPreferredName] = useState("");
   const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -233,28 +234,47 @@ export default function StudentSettings() {
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
   const [ID, setID] = useState("");
-  const [college, setCollege] = useState("");
-  const [major, setMajor] = useState("");
-  const [minor, setMinor] = useState("");
-  const [gradYear, setGradYear] = useState("");
+  const [college, setCollege] = useState([]);
+  const [major, setMajor] = useState([]);
+  const [minor, setMinor] = useState([]);
+  const [grad_year, setGradYear] = useState("");
+  const [state, setState] = React.useState({
+    appt_confirmation: false,
+    appt_reminder: false,
+    feedback: false,
+  });
+
   const url = "";
 
-  useEffect(() => {
-    fetch(url)
-      .then((res) => res.json())
-      .then((json) => {
-        var info = json.body;
-        setFirstName(info.first_name);
-      });
-  }, []);
+  //useEffect(() => {
+  //fetch(url)
+  //.then((res) => res.json())
+  //.then((json) => {
+  //var info = json.body;
+  // setFirstName(info.first_name);
+  //setPreferredName(info.preferred_name);
+  //setLastName(info.last_name);
+  //setEmail(info.email);
+  //setPronouns(info.pronouns);
+  //setLink(info.link);
+  //setPhone(info.phone);
+  //setBio(info.bio);
+  //setID(info.ID);
+  //setCollege(info.college);
+  //setMajor(info.major);
+  //setMinor(info.minor);
+  //setGradYear(info.grad_year);
+  //setApptConfirm(info.appt_confirmation);
+  //setApptRemind(info.appt_reminder);
+  //setFeedback(info.feedback);
+  //});
+  //}, []);
+
+  function handleSave(event) {
+    event.preventDefault();
+  }
 
   return (
-    // <Container component="main" maxWidth="xs" align="center">
-    //   <Typography component="h1" variant="h5" align="center">
-    //     Admin Settings
-    //   </Typography>
-    // </Container>
-
     <Grid container direction="column">
       <Paper style={{ padding: 20 }}>
         <Grid Item>
@@ -263,7 +283,7 @@ export default function StudentSettings() {
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <ExpansionPanel>
+          <ExpansionPanel defaultExpanded="true">
             <ExpansionPanelSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1bh-content"
@@ -290,6 +310,7 @@ export default function StudentSettings() {
                     variant="outlined"
                     id="default"
                     fullWidth
+                    defaultValue={preferred_name}
                     label="Preferred Name"
                     name="preferred Name"
                     onChange={(e) => setPreferredName(e.target.value)}
@@ -300,6 +321,7 @@ export default function StudentSettings() {
                     variant="outlined"
                     id="default"
                     fullWidth
+                    defaultValue={last_name}
                     label="Last Name"
                     required="true"
                     name="field default"
@@ -312,6 +334,7 @@ export default function StudentSettings() {
                     id="default"
                     fullWidth
                     label="Email Address"
+                    defaultValue={email}
                     required="true"
                     name="field default"
                     onChange={(e) => setEmail(e.target.value)}
@@ -322,6 +345,7 @@ export default function StudentSettings() {
                     variant="outlined"
                     id="default"
                     fullWidth
+                    defaultValue={pronouns}
                     label="Pronouns"
                     name="field default"
                     onChange={(e) => setPronouns(e.target.value)}
@@ -332,6 +356,7 @@ export default function StudentSettings() {
                     variant="outlined"
                     id="default"
                     fullWidth
+                    defaultValue={link}
                     label="LinkedIn Link:"
                     name="field default"
                     onChange={(e) => setLink(e.target.value)}
@@ -342,17 +367,34 @@ export default function StudentSettings() {
                     variant="outlined"
                     id="default"
                     fullWidth
+                    defaultValue={phone}
                     label="Phone Number"
                     name="field default"
                     onChange={(e) => setPhone(e.target.value)}
                   />
                 </Grid>
+                <Button
+                  variant="contained"
+                  component="label"
+                  color="secondary"
+                  size="small"
+                  startIcon={<CloudUploadIcon />}
+                >
+                  Upload Resume
+                  <input
+                    type="file"
+                    color="primary"
+                    margin="dense"
+                    style={{ display: "none", color: "primary" }}
+                  />
+                </Button>
                 <Grid item xs={8}>
                   <TextField
                     variant="outlined"
                     id="default"
                     fullWidth="true"
                     multiline
+                    defaultValue={bio}
                     rows="5"
                     label="Personal Biography"
                     name="field default"
@@ -375,11 +417,13 @@ export default function StudentSettings() {
               <Grid container spacing={1}>
                 <Grid item xs={5}>
                   <Autocomplete
+                    multiple
                     id="all-colleges"
                     options={colleges}
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        defaultValue={college}
                         variant="outlined"
                         label="Colleges"
                       />
@@ -389,11 +433,13 @@ export default function StudentSettings() {
                 </Grid>
                 <Grid item xs={5}>
                   <Autocomplete
+                    multiple
                     id="all-majors"
                     options={majors}
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        defaultValue={major}
                         variant="outlined"
                         label="Majors"
                       />
@@ -403,11 +449,13 @@ export default function StudentSettings() {
                 </Grid>
                 <Grid item xs={5}>
                   <Autocomplete
+                    multiple
                     id="all-minors"
                     options={minors}
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        defaultValue={minor}
                         variant="outlined"
                         label="Minors"
                       />
@@ -422,6 +470,7 @@ export default function StudentSettings() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        defaultValue={grad_year}
                         variant="outlined"
                         label="Expected Year of Graduation"
                       />
@@ -447,19 +496,28 @@ export default function StudentSettings() {
                 <Grid item xs={12} spacing="12">
                   <FormControlLabel
                     value="start"
-                    control={<Checkbox color="primary" />}
+                    control={
+                      <Checkbox
+                        color="primary"
+                        checked={state.appt_confirmation}
+                      />
+                    }
                     label="Appointment Confirmation"
                     labelPlacement="end"
                   />
                   <FormControlLabel
                     value="start"
-                    control={<Checkbox color="primary" />}
+                    control={
+                      <Checkbox color="primary" checked={state.appt_reminder} />
+                    }
                     label="Appointment Reminder"
                     labelPlacement="end"
                   />
                   <FormControlLabel
                     value="start"
-                    control={<Checkbox color="primary" />}
+                    control={
+                      <Checkbox color="primary" checked={state.feedback} />
+                    }
                     label="Feedback"
                     labelPlacement="end"
                   />
@@ -485,6 +543,7 @@ export default function StudentSettings() {
           color="primary"
           fullWidth="false"
           size="large"
+          onClick={handleSave}
           alignContent="center"
         >
           Save Changes
