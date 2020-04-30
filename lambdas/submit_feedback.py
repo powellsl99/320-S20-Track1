@@ -8,13 +8,14 @@ from package.query_db import query
 #It also updates the supporter rating field based on the feedback given
 
 def submit_feedback(event,context):
-    given_id = int(event['appointment_id'])
+    given_appointment_id = int(event['appointment_id'])
+    given_student_id = int(event['student_id'])
     feedback = event(['feedback'])
     rating = int(event['rating'])
 
     #Check to see if the appointmnet id exists
-    sql = 'SELECT appointment_id FROM student_appointment_relation WHERE appointment_id=:given_id'
-    sql_parameters = [{'name':'given_id', 'value' : {'longValue': given_id}}]
+    sql = 'SELECT appointment_id FROM student_appointment_relation WHERE appointment_id=:given_appointment_id'
+    sql_parameters = [{'name':'given_id', 'value' : {'longValue': given_appointment_id}}]
     exists = query(sql,sql_parameters)
     #print(exists['records'])
 
@@ -26,10 +27,11 @@ def submit_feedback(event,context):
     
     #Insert feedback into table if the appointment id exists
     else:
-        sql = 'UPDATE student_appointment_relation SET feedback = :feedback, rating = :rating WHERE appointment_id = :given_id'
+        sql = 'UPDATE student_appointment_relation SET feedback = :feedback, rating = :rating WHERE appointment_id = :given_appointment_id AND student_id = :given_student_id'
         sql_parameters = [{'name':'feedback', 'value' : {'stringValue' : feedback}},
                             {'name':'rating', 'value' : {'longValue' : rating}},
-                            {'name':'given_id', 'value' : {'longValue' : given_id}}]
+                            {'name':'given_appointment_id', 'value' : {'longValue' : given_appointment_id}},
+                            {'name':'given_student_id', 'value' : {'longValue' : given_student_id}}]
         appointment_with_feedback = query(sql,sql_parameters)
 
         #Check to see if anything was updated
@@ -41,8 +43,8 @@ def submit_feedback(event,context):
         #If feedback was updated, update supporter rating and return correct status code
         else:
             #query to get associated supporter id (1)
-            sql1 = 'SELECT supporter_id FROM student_appointment_relation SR WHERE SR.appointment_id = :given_id LIMIT 1'
-            sql_parameters1 = [{'name':'given_id', 'value' : {'longValue' : given_id}}]
+            sql1 = 'SELECT supporter_id FROM student_appointment_relation SR WHERE SR.appointment_id = :given_appointment_id LIMIT 1'
+            sql_parameters1 = [{'name':'given_appointment_id', 'value' : {'longValue' : given_appointment_id}}]
             supp_id_query = query(sql1,sql_parameters1)
             supp_id = supp_id_query['records'][0][0]['longValue']
             #print(supp_id)
