@@ -13,15 +13,17 @@ def submit_feedback(event,context):
     rating = int(event['rating'])
 
     #Check to see if the appointmnet id exists
-    sql = 'SELECT appointments_id FROM student_appointment_relation WHERE appointmnet_id=:given_id'
+    sql = 'SELECT appointment_id FROM student_appointment_relation WHERE appointment_id=:given_id'
     sql_parameters = [{'name':'given_id', 'value' : {'longValue': given_id}}]
     exists = query(sql,sql_parameters)
+    #print(exists['records'])
 
     if(exists['records'] == []):
         return{
             'body': json.dumps("The appointment does not exist"),
             'statusCode': 404
         }
+    
     #Insert feedback into table if the appointment id exists
     else:
         sql = 'UPDATE student_appointment_relation SET feedback = :feedback, rating = :rating WHERE appointment_id = :given_id'
@@ -43,21 +45,25 @@ def submit_feedback(event,context):
             sql_parameters1 = [{'name':'given_id', 'value' : {'longValue' : given_id}}]
             supp_id_query = query(sql1,sql_parameters1)
             supp_id = supp_id_query['records'][0][0]['longValue']
+            #print(supp_id)
             
             #query to get sum of rating values for all appointments the supporter has had (2)
             sql2 = 'SELECT SUM(rating) FROM student_appointment_relation WHERE rating IS NOT NULL AND supporter_id = :supp_id'
             sql_parameters2 = [{'name':'supp_id', 'value' : {'longValue' : supp_id}}]
             rating_sum_query = query(sql2,sql_parameters2)
-            rating_sum = int(rating_sum_query['recoreds'][0][0]['stringValue'])
+            rating_sum = float(rating_sum_query['records'][0][0]['stringValue'])
+            #print(rating_sum)
 
             #query to get number of entries in SAR for specific supporter id (3)
             sql3 = 'SELECT COUNT(rating) FROM student_appointment_relation WHERE rating IS NOT NULL AND supporter_id = :supp_id'
             sql_parameters3 = [{'name':'supp_id', 'value' : {'longValue' : supp_id}}]
             num_ratings_query = query(sql3,sql_parameters3)
             num_ratings = num_ratings_query['records'][0][0]['longValue']
+            #print(num_ratings)
 
             #divide sum by number of entries to get overall rating
             new_rating = (rating_sum) / (num_ratings)
+            #print(new_rating)
 
             #query to update new overall rating to supporters table (4)
             if(isinstance(new_rating, int)):
@@ -80,6 +86,10 @@ def submit_feedback(event,context):
                     'body': json.dumps("Appointment feedback updated"),
                     'statudCode': 200
                 }
+            
+        
+
+
 
         
 
