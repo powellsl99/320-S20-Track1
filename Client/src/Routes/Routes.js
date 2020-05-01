@@ -6,7 +6,7 @@ import SignUpSupporter from "../Pages/signUpSupporter.js";
 import tos from "../Pages/TOS.js";
 import appts from "../Pages/appts.js";
 import NotFound from "../Pages/NotFound.js";
-import Account from "../Pages/account.js";
+import Account from "../Pages/UserApproval.js";
 import AdminSettings from "../Pages/adminSettings.js"
 import SupporterSettings from "../Pages/SupporterSettings.js"
 import Matching from "../Pages/FindSupporter/Matching.js"
