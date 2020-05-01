@@ -50,22 +50,22 @@ const ProfileInformation = (props) => {
                             required
                             label="First Name"
                             autoFocus
-                            form className={classes.form}
+                            className={classes.form}
                             onChange={e => setFirstName(e.target.value)}
                         />
                     </Grid>
-                    <Grid xs={3}>
+                    <Grid item xs={3}>
                         <TextField
                             variant="outlined"
                             margin="normal"
                             fullWidth
                             label="Preferred Name"
                             autoFocus
-                            form className={classes.form}
+                            className={classes.form}
                             onChange={e => setPrefName(e.target.value)}
                         />
                     </Grid>
-                    <Grid xs={4}>
+                    <Grid item xs={4}>
                         <TextField
                             variant="outlined"
                             margin="normal"
@@ -73,7 +73,7 @@ const ProfileInformation = (props) => {
                             required
                             label="Last Name"
                             autoFocus
-                            form className={classes.form}
+                            className={classes.form}
                             onChange={e => setLastName(e.target.value)}
                         />
                     </Grid>
@@ -84,7 +84,7 @@ const ProfileInformation = (props) => {
                             fullWidth
                             label="Pronouns"
                             autoFocus
-                            form className={classes.form}
+                            className={classes.form}
                             onChange={e => setPronouns(e.target.value)}
                         />
                     </Grid>
@@ -99,18 +99,18 @@ const ProfileInformation = (props) => {
                             required
                             label="Email Address"
                             autoFocus
-                            form className={classes.form}
+                            className={classes.form}
                             onChange={e => setEmail(e.target.value)}
                         />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid item xs={6}>
                         <TextField
                             variant="outlined"
                             margin="normal"
                             fullWidth
                             label="Phone Number"
                             autoFocus
-                            form className={classes.form}
+                            className={classes.form}
                             onChange={e => setPhoneNumber(e.target.value)}
                         />
                     </Grid>
@@ -123,12 +123,12 @@ const ProfileInformation = (props) => {
                     autoFocus
                     multiline
                     rows={4}
-                    form className={classes.form}
+                    className={classes.form}
                     onChange={e => setBio(e.target.value)}
                 />
                 <Button
                     margin="normal"
-                    form className={classes.button}
+                    className={classes.button}
                     variant="contained"
                     color="primary"
                     onClick={handleSubmit}

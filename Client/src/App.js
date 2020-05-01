@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Menu from "./Navigation/appbar.js";
 import Routes from "./Routes/Routes";
 import Cookies from "universal-cookie";

@@ -10,6 +10,12 @@ export default function FieldDefaults() {
   ]
   const [curField, setCurrField] = useState("");
   const [newDefault, setNewDefault] = useState("");
+
+  //This is just to get react to shut up about unused variables
+  function f(a,b){
+  }
+  f(curField,newDefault)
+
   return (
     <div>
       <Typography>

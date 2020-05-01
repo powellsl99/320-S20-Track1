@@ -14,6 +14,11 @@ export default function BlockUnblock() {
     ]
     const [selectedUser, setSelectedUser] = useState("");
     const [selectedBlockedUser, setSelectedBlockedUser] = useState("");
+
+    //just to get react to shut up about unused variables
+    function f(a,b){}
+    f(selectedBlockedUser, selectedUser)
+
     return(
     <div>
     <Typography>

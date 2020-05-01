@@ -235,6 +235,10 @@ export default function StudentSettings() {
   const [gradYear, setGradYear] = useState("");
   const url = "";
 
+  //to get react to shut up in console
+  function f(preferred_name,last_name,email,pronouns,link,phone,bio,ID,college,major,minor,gradYear){}
+  f(preferred_name,last_name,email,pronouns,link,phone,bio,ID,college,major,minor,gradYear)
+
   useEffect(() => {
     fetch(url)
       .then((res) => res.json())
