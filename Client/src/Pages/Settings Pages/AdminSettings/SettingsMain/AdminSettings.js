@@ -11,6 +11,7 @@ import ChangeTags from "../TopicsTags/tags.js";
 import ViewBlocked from "../BlockUnblock/blockUnblock.js";
 import DownloadData from "../DownloadData/downloadData.js";
 import FieldDefaults from "../FieldDefaults/fieldDefaults.js";
+import Appointments from '../Appointments/appointments';
 
 const drawerWidth = "25%";
 
@@ -85,14 +86,17 @@ const SupporterSettings = (props) => {
               <ListItem button onClick={() => setPage("View Blocked Accounts")} key={2}>
                 <ListItemText primary={"View Blocked Accounts"} />
               </ListItem>
-              <ListItem button onClick={() => setPage("Download Data")} key={4}>
+              <ListItem button onClick={() => setPage("Download Data")} key={3}>
                 <ListItemText primary={"Download Data"} />
               </ListItem>
               <ListItem button onClick={() => setPage("Edit Tags")} key={4}>
                 <ListItemText primary={"Edit Tags"} />
               </ListItem>
-              <ListItem button onClick={() => setPage("Edit Topics")} key={4}>
+              <ListItem button onClick={() => setPage("Edit Topics")} key={5}>
                 <ListItemText primary={"Edit Topics"} />
+              </ListItem>
+              <ListItem button onClick={() => setPage("Appointments")} key={6}>
+                <ListItemText primary={"Appointments"} />
               </ListItem>
             </List>
           </div>
@@ -103,6 +107,7 @@ const SupporterSettings = (props) => {
             {page==="Download Data" && (<DownloadData/>)}
             {page==="Edit Tags" && (<ChangeTags/>)}
             {page==="Edit Topics" && (<ChangeTopics/>)}
+            {page==="Appointments" && (<Appointments/>)}
         </main>
       </div>
       );

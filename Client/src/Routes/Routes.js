@@ -40,7 +40,7 @@ export default function Routes() {
           <StudentRoute path="/match" exact component={Matching} />
           <Route path="/TOS" exact component={tos} />
           <AuthenticatedRoute path="/appointments" exact component={appts} />
-          <AuthenticatedRoute path="/account" exact component={Account} />
+          <AuthenticatedRoute path="/account" exact component={AdminSettings} />
           <UnauthenticatedRoute path="/signup-supporter" exact component={SignUpSupporter} />
           <UnauthenticatedRoute path="/signup" exact component={SignUp} />
           <UnauthenticatedRoute path="/forgot-password" exact component={ForgotPassword} />

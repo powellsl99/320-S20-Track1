@@ -66,16 +66,13 @@ const SupporterSettings = (props) => {
         </AppBar>
         <Drawer
           className={classes.drawer}
+          style={{paddingTop: 1000}}
           variant="permanent"
           classes={{
             paper: classes.drawerPaper,
           }}> 
           <div>
-          <br/>
-          <br/>
-          <br/>
-          <br/>
-          <br/>
+
             <List>
               <ListItem button onClick={() => setPage("Profile Information")} key={1}>
                 <ListItemText primary={"Profile Information"} />
