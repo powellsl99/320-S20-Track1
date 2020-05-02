@@ -12,6 +12,7 @@ import ViewBlocked from "../BlockUnblock/blockUnblock.js";
 import DownloadData from "../DownloadData/downloadData.js";
 import FieldDefaults from "../FieldDefaults/fieldDefaults.js";
 import Appointments from '../Appointments/appointments';
+import AdminApproval from "../AdminApproval/adminApproval.js";
 
 const drawerWidth = "25%";
 
@@ -98,6 +99,9 @@ const SupporterSettings = (props) => {
               <ListItem button onClick={() => setPage("Appointments")} key={6}>
                 <ListItemText primary={"Appointments"} />
               </ListItem>
+              <ListItem button onClick={() => setPage("Admin Approval")} key={7}>
+                <ListItemText primary={"Admin Approval"} />
+              </ListItem>
             </List>
           </div>
         </Drawer>
@@ -108,9 +112,10 @@ const SupporterSettings = (props) => {
             {page==="Edit Tags" && (<ChangeTags/>)}
             {page==="Edit Topics" && (<ChangeTopics/>)}
             {page==="Appointments" && (<Appointments/>)}
+            {page==="Admin Approval" && (<AdminApproval/>)}
         </main>
       </div>
       );
   }
 
-  export default SupporterSettings
+  export default SupporterSettings;
