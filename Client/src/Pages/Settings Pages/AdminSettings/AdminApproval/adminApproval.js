@@ -62,9 +62,7 @@ const AdminApproval = () => {
             console.log(error);
           });
         
-        if(reload){
-            window.location.reload(false);
-        }
+        window.location.reload(false)
         setDialog(false)
     }
 

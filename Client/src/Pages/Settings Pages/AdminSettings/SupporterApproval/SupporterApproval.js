@@ -11,12 +11,12 @@ const [isLoaded, setLoaded] = useState(false)
         fetch('https://7jdf878rej.execute-api.us-east-2.amazonaws.com/test/users/supporters/unapproved')
         .then(res => res.json())
         .then(json => {
-            console.log(json.body)
+            
             setUnapproved(json.body)
             setLoaded(true)
 
         })
-    },[]);
+    });
 
     function handleType(supporter){
         if(supporter.s_professional_staff){
@@ -42,6 +42,7 @@ const [isLoaded, setLoaded] = useState(false)
             <main>
             {unapproved.map((supporter) => (
                 <ApprovalCard
+                id={supporter.s_supporter_id}
                 name = {supporter.s_first_name + " " + supporter.s_last_name}
                 office={supporter.s_office}
                 supporterType={handleType(supporter)}

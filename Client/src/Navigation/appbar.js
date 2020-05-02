@@ -106,8 +106,8 @@ export default function MenuAppBar(props) {
     fetch('https://7jdf878rej.execute-api.us-east-2.amazonaws.com/test/users/' + id + '/role')
             .then(res => res.json())
             .then(json => {
-            
-              SetPossibleRoles(['student','supporter', 'admin']);
+              console.log(json)
+              SetPossibleRoles(json.user_roles);
             })
             .catch(error => {
                 console.log(error);

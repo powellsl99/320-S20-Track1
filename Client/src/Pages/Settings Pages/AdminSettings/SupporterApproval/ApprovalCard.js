@@ -8,6 +8,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Dialog, DialogContent, DialogContentText,
     DialogActions, DialogTitle,} from '@material-ui/core';
 
+
 const useStyles = makeStyles((theme) => ({
     root: {
       width: '100%',
@@ -48,14 +49,7 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-  function handleApprove(){
 
-  }
-
-  function handleDeny(){
-      
-  }
-  
 
   
 
@@ -89,6 +83,35 @@ const ApprovalCard = (props) => {
     }
 
     function handleApprove(){
+        fetch("https://7jdf878rej.execute-api.us-east-2.amazonaws.com/test/register/supporters/approve",
+            {
+              method: "PATCH",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                  supporter_id: props.id
+              })
+           
+            }
+          )
+          .then(response => {
+            if (response.status >= 200 && response.status < 300) {
+              console.log(response)
+              return response.json();
+            } else {
+              throw new Error("Server can't be reached!");
+            }
+          })
+          .then(json => {
+            //setOpen(false);
+            //setOpenCreated(true);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+          
         setApproveDialog(false);
     }
 

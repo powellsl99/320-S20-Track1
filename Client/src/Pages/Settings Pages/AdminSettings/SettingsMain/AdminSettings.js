@@ -14,6 +14,7 @@ import FieldDefaults from "../FieldDefaults/fieldDefaults.js";
 import Appointments from '../Appointments/appointments';
 import AdminApproval from "../AdminApproval/adminApproval.js";
 import SupporterApproval from "../SupporterApproval/SupporterApproval";
+import FaqSettings from "../FAQ/faqPage.js";
 
 const drawerWidth = "25%";
 
@@ -106,6 +107,9 @@ const SupporterSettings = (props) => {
               <ListItem button onClick={() => setPage("Supporter Approval")} key={8}>
                 <ListItemText primary={"Supporter Approval"} />
               </ListItem>
+              <ListItem button onClick={() => setPage("FAQ Settings")} key={9}>
+                <ListItemText primary={"FAQ Settings"} />
+              </ListItem>
             </List>
           </div>
         </Drawer>
@@ -118,6 +122,7 @@ const SupporterSettings = (props) => {
             {page==="Appointments" && (<Appointments/>)}
             {page==="Admin Approval" && (<AdminApproval/>)}
             {page==="Supporter Approval" && (<SupporterApproval/>)}
+            {page==="FAQ Settings" && (<FaqSettings/>)}
         </main>
       </div>
       );
