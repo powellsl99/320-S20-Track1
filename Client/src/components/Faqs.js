@@ -31,7 +31,7 @@ class Faqs extends Component {
         {filteredFaqs.map((faq) => {
           return (
             <FaqItem
-              key={faq.faq_id}
+              key={faq.id}
               faq={faq}
               question={faq.question}
               answer={faq.answer}
