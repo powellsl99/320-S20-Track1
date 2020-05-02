@@ -94,12 +94,14 @@ def handler(event, context):
         specializations = event[specializations]
         specializations = specializations.strip('][').split(', ')
 
-        spec_sql = "INSERT INTO specializations_for_block VALUES "
+        spec_sql = "INSERT INTO specializations_for_block (specialization_type_id, appointment_block_id) VALUES "
         spec_params = [appt_block_id_param]
+
+        values = []
         for spec in specializations:
-             (specialization_type_id, appointment_block_id)\
-                            VALUES (SELECT specialization_type_id FROM specialization_type WHERE specialization_type = :specialization), :appt_block_id"
-            spec_params.append({'name' : 'specialization', 'value' : {'stringValue' : spec}})
+        
+            val = "((SELECT specialization_type_id FROM specialization_type WHERE specialization_type = :" + spec + "), :appt_block_id)"
+            spec_params.append({'name' : spec, 'value' : {'stringValue' : spec}})
 
 
    
