@@ -14,7 +14,7 @@ import json
 #        list of tag_type_ids, list of major_ids, list of minor_ids,         
 #Output: 200 OK
 
-def update_supporter_appointment_settings(event, context):
+def update_supporter_settings(event, context):
 
     supporter_id = event['id']    
 
