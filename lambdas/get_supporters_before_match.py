@@ -66,7 +66,7 @@ def generate_supporter_dict():
             if entry[12]['stringValue'] not in supporter['preferences']['major_prefs']:
                 supporter['preferences']['major_prefs'].append(entry[12]['stringValue'])
             if entry[15]['stringValue'] not in supporter['topics']:
-                new_topic = {'duration':entry[13]['longValue'], 'max_students': entry[14]['longValue']}
+                new_topic = {'duration':entry[14]['longValue'], 'max_students': entry[13]['longValue']}
                 supporter['topics'][entry[15]['stringValue']] = new_topic
         else:
             new_supporter = {}
@@ -83,7 +83,7 @@ def generate_supporter_dict():
             new_supporter['tags'] = [entry[9]['stringValue']]
             new_supporter['employer'] = entry[5]['stringValue']
             new_supporter['imgsrc'] = entry[3]['stringValue']
-            new_supporter['topics'] = {entry[15]['stringValue']:{'duration':entry[13]['longValue'], 'max_students': entry[14]['longValue']}}
+            new_supporter['topics'] = {entry[15]['stringValue']:{'duration':entry[14]['longValue'], 'max_students': entry[13]['longValue']}}
             new_supporter['preferences'] = {'grad_student': entry[10]['booleanValue'], 'hours_before_appointment': entry[11]['longValue'], 'major_prefs': [entry[12]['stringValue']]}
 
             supporters[entry[0]['longValue']] = new_supporter
@@ -117,7 +117,8 @@ def generate_block_dict(supporter_dict, scheduled_appointments, date_start, date
 
         for time in taken_times:
             if curr_latest_time <= time[0] < time[1] <= end_datetime:
-                available_times.append({'start': curr_latest_time.strftime(TIME_FORMAT), 'end': time[0].strftime(TIME_FORMAT)})
+                if curr_latest_time != time[0]:
+                    available_times.append({'start': curr_latest_time.strftime(TIME_FORMAT), 'end': time[0].strftime(TIME_FORMAT)})
                 curr_latest_time = time[1]
         
         if curr_latest_time != end_datetime:
@@ -126,14 +127,15 @@ def generate_block_dict(supporter_dict, scheduled_appointments, date_start, date
         new_block['day'] = day.strftime(DATE_FORMAT)
         new_block['timeBlocks'] = available_times
 
-        blocks.append(new_block)
+        if available_times != []:
+            blocks.append(new_block)
 
     return blocks
 
 def main(event, context):
 
-    date_start = event['date_start']
-    date_end = event['date_end']
+    date_start = event['start_date']
+    date_end = event['end_date']
 
     supporter_dict = generate_supporter_dict()
 
