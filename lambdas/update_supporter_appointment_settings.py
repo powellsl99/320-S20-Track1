@@ -5,16 +5,17 @@ from package.dictionary_to_list import dictionary_to_list
 import json
 
 #Function to update a supporter's settings
-#Inputs: id, max_students, duration, list of major_ids, specialization_type_id,
-#        job_search, and grad_student
+#Inputs: id, max_students, duration, list of major_ids, list of minor_ids,
+#        specialization_type_id, hours_before_appointment, and grad_student
 #Output: 200 OK
 def update_supporter_appointment_settings(event, context):
     supporter_id = event['id']
     max_students = event['max_students']
     duration = event['duration']
     major_id_list = event['major_id']
+    minor_id_list = event['minor_id']
     specialization_type_id = event['specialization_type_id']
-    job_search = event['job_search']
+    hours_before_appointment = event['hours_before_appointment']
     grad_student = event['grad_student']
 
     preferences = {}
@@ -44,17 +45,12 @@ def update_supporter_appointment_settings(event, context):
     #Adding to preferences dictionary
     #The reason I add to the dictionary by adding another dictionary with the value type
     #and then value is for the parameterization
-    if(job_search == None):
-        return{
-            'body': json.dumps("job_search cannot be empty"),
-            'statusCode' : 422 #unproccesable
-        }
     if(grad_student == None): #These values cannot be null
         return{
             'body': json.dumps("grad_student cannot be empty"),
             'statusCode' : 422 #unproccesable
         }
-    preferences['job_search'] = job_search
+    preferences['hours_before_appointment'] = hours_before_appointment
     preferences['grad_student'] = grad_student    
     preferences['supporter_id'] = supporter_id
 
@@ -65,7 +61,7 @@ def update_supporter_appointment_settings(event, context):
     specializations['supporter_id'] = supporter_id
 
     #Execute parameterized query for updating preferences
-    sql = 'UPDATE supporter_preferences_for_students SET job_search = :job_search, grad_student = :grad_student WHERE supporter_id = :supporter_id;'
+    sql = 'UPDATE supporter_preferences_for_students SET hours_before_appointment = :hours_before_appointment, grad_student = :grad_student WHERE supporter_id = :supporter_id;'
     sql_parameters = dictionary_to_list(preferences)
     pref_response = query(sql, sql_parameters)
     if(pref_response == {}):
@@ -97,7 +93,16 @@ def update_supporter_appointment_settings(event, context):
         major_response = query(sql, sql_parameters)
         if(major_response["numberOfRecordsUpdated"] == 0):
             return {
-                'body': json.dumps("supporter_major_preferences not updated"),
+                'body': json.dumps("supporter_major_preferences majors not updated"),
+                'statusCode': 409 #conflict
+            }
+    for entry in minor_id_list:
+        sql = 'INSERT INTO supporter_major_preferences(supporter_id, minor_id) VALUES (:supporter_id, :minor_id)'
+        sql_parameters = [{'name': 'supporter_id', 'value': {'longValue': supporter_id}}, {'name': 'minor_id', 'value': {'longValue': entry}}]
+        minor_response = query(sql, sql_parameters)
+        if(minor_response["numberOfRecordsUpdated"] == 0):
+            return {
+                'body': json.dumps("supporter_major_preferences minors not updated"),
                 'statusCode': 409 #conflict
             }
     
