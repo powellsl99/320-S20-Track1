@@ -1,5 +1,6 @@
 import json
 import boto3
+import copy
 
 from package.query_db import query
 from package.lambda_exception import LambdaException
@@ -14,6 +15,34 @@ DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 #Key: (supporter_id, day)
 #Value: List of {start, end} datetime objects sorted by starttime
 def generate_scheduled_appt_dict():
+    taken_days = {}
+
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    scheduled_sql = "SELECT supporter_id, time_of_appt, duration\
+    FROM scheduled_appointments\
+    WHERE NOT cancelled\
+    AND time_of_appt BETWEEN :date_start AND :date_end;"
+
+    params = [{'name' : 'date_start', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_start}}, {'name' : 'date_end', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_end}}]
+
+    scheduled_query_data = query(scheduled_sql, params)
+
+    for entry in scheduled_query_data['records']:
+        start_datetime = datetime.strptime(entry[1]['stringValue'], date_format)
+        end_datetime = start_datetime + timedelta(minutes=entry[2]['longValue'])
+        supp_id = entry[0]['longValue']
+        day = start_datetime.date()
+
+        if (supp_id, day) in taken_days:
+            taken_days[(supp_id, day)].append([start_datetime, end_datetime])
+        else:
+            taken_days[(supp_id, day)] = [[start_datetime, end_datetime]]
+
+    for day in taken_days.values():
+        day.sort(key=lambda day: day[0])
+
+    return taken_days
 
 #Creates dictionary storing all info about a block in correct format
 def build_block_obj(block, start_time, end_time):
@@ -99,6 +128,31 @@ def generate_appt_blocks(scheduled_appts):
 
 #Break up available blocks into chunked blocks with one topic each where available times are broken up into segments of that topic duration
 def chunk_blocks(available_blocks):
+
+    def break_block(start, end, duration):
+        currBegin = start
+        currEnd = start + duration
+        while currEnd < end:
+            yield [currBegin, currEnd]
+            currBegin += duration
+            currEnd += duration
+
+    broken_blocks = []
+    #hardcoded duration for now
+    duration = 30
+
+    for entry in available_blocks:
+        for topic in entry['topics']:
+            tmp_block = copy.deepcopy(entry)
+            tmp_block['topics'] = topic
+            tmp_block['timeBlocks'] = []
+            for block in entry['timeBlocks']:
+                for result in break_block(block[0], block[1], timedelta(minutes = duration)):
+                    tmp_block['timeBlocks'].append(result)
+            
+            broken_blocks.append(tmp_block)
+
+    return broken_blocks
 
 # This lambda fetches a JSON list of available appointments blocks from the database. 
 # the list is then filtered down by the front end. 
