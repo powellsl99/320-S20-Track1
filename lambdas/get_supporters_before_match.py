@@ -111,12 +111,12 @@ def get_supporters_before_match(event, context):
 
     date_format = "%Y-%m-%d %H:%M:%S"
 
-    blocks_sql = "SELECT S.supporter_id, U.first_name, U.last_name, U.picture, S.rating, S.employer, S.title, AB.start_date, AB.end_date, ST.specialization_type, T.tags, SPS.job_search, SPS.grad_student, (select major from major where major_id = SMP.major_id), AB.max_num_of_appts\
+    blocks_sql = "SELECT S.supporter_id, U.first_name, U.last_name, U.picture, S.rating, S.employer, S.title, AB.start_date, AB.end_date, ST.specialization_type, (select TT.tag_type from tag_type TT where TT.tag_type_id = STG.tag_type_id), SPS.grad_student, (select major from major where major_id = SMP.major_id), AB.max_num_of_appts\
     FROM users U, supporters S, appointment_block AB, specializations_for_block SFB,\
-    specialization_type ST, supporter_specializations SS, tags T, supporter_preferences_for_students SPS, supporter_major_preferences SMP\
+    specialization_type ST, supporter_tags STG, supporter_specializations SS, supporter_preferences_for_students SPS, supporter_major_preferences SMP\
     WHERE U.id = S.user_id\
     AND S.supporter_id = AB.supporter_id\
-    AND T.supporter_id = S.supporter_id\
+    AND STG.supporter_id = S.supporter_id\
     AND SPS.supporter_id = S.supporter_id\
     AND SMP.supporter_id = S.supporter_id\
     AND AB.appointment_block_id = SFB.appointment_block_id\
@@ -125,16 +125,21 @@ def get_supporters_before_match(event, context):
     AND S.supporter_id = SS.supporter_id\
     AND start_date BETWEEN :date_start AND :date_end;"
 
-    scheduled_sql = "SELECT supporter_id, time_of_appt, duration\
-    FROM scheduled_appointments\
+    scheduled_sql = "SELECT SA.supporter_id, SA.time_of_appt, SS.duration\
+    FROM scheduled_appointments SA, supporter_specializations SS, specializations_for_appointment SFA\
     WHERE NOT cancelled\
+    AND SFA.appointment_id = SA.appointment_id\
+    AND SS.specialization_type_id = SFA.specialization_type_id\
     AND time_of_appt BETWEEN :date_start AND :date_end;"
             
     params = [{'name' : 'date_start', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_start}}, {'name' : 'date_end', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_end}}]
 
     blocks_query_data = query(blocks_sql, params)
+    # blocks_query_data = {}
 
     scheduled_query_data = query(scheduled_sql, params)
+    
+    print(json.dumps(scheduled_query_data))
 
     if blocks_query_data['records'] == []: #If response was empty
         print("There are no appointment blocks available")
@@ -145,8 +150,9 @@ def get_supporters_before_match(event, context):
         supporter_availibility = {}
     
         for entry in blocks_query_data['records']:
+            print(entry[13])
 
-            if len(entry) != 15:
+            if len(entry) != 14:
                 return {
                     "statusCode": 422
                 }
@@ -161,7 +167,9 @@ def get_supporters_before_match(event, context):
                 if appt[0]['longValue'] == entry[0]['longValue'] and entry_start_date < appt_start_date < appt_end_date < entry_end_date:
                     scheduled_in = scheduled_in + 1
             
-            if scheduled_in >= entry[14]['longValue']:
+            print(scheduled_in)
+            
+            if scheduled_in >= entry[13]['longValue']:
                 continue
             
             supporter_id = entry[0]['longValue']
@@ -175,10 +183,16 @@ def get_supporters_before_match(event, context):
                 if new_topic not in topics:
                     topics.append(new_topic)
                     supporter['topics'] = topics
+                    
+                tags = supporter['tags']
+                new_tag = entry[10]['stringValue']
+                if new_tag not in tags:
+                    tags.append(new_tag)
+                    supporter['tags'] = tags
                 
                 supporter_prefs = supporter['preferences']
                 major_prefs = supporter_prefs['major_prefs']
-                new_major_pref = entry[13]['stringValue']
+                new_major_pref = entry[12]['stringValue']
                 if new_major_pref not in major_prefs:
                     major_prefs.append(new_major_pref)
                     supporter_prefs['major_prefs'] = major_prefs
@@ -192,15 +206,16 @@ def get_supporters_before_match(event, context):
                 
                 supporter['supporter_id'] = entry[0]['longValue']
                 supporter['name'] = entry[1]['stringValue'] + " " + entry[2]['stringValue']
-                supporter['rating'] = entry[4]['longValue']
+                supporter['rating'] = entry[4]['stringValue']
                 supporter['employer'] = entry[5]['stringValue']
                 supporter['title'] = entry[6]['stringValue']
                 supporter['topics'] = [entry[9]['stringValue']]
-                supporter['tags'] = entry[10]['arrayValue']['stringValues']
+                supporter['tags'] = [entry[10]['stringValue']]
                 supporter['imgsrc'] = entry[3]['stringValue']
                 supporter['timeBlocks'] = [{'start' : entry[7]['stringValue'][11:], 'end' : entry[8]['stringValue'][11:]}]
                 supporter['day'] = entry[7]['stringValue'][:10]
-                supporter['preferences'] = {'job_search' : entry[11]['booleanValue'], 'grad_student' : entry[12]['booleanValue'], 'major_prefs' : [entry[13]['stringValue']]}
+                supporter['preferences'] = {'grad_student' : entry[11]['booleanValue'], 'major_prefs' : [entry[12]['stringValue']]}
+                supporter['max_appts'] = entry[13]['longValue']
             
                 supporter_availibility[(supporter_id, day)] = supporter
             
