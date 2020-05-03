@@ -9,15 +9,15 @@ import json
 #Inputs: first_name, last_name, email, preferred_name, picture, bio, pronouns, gender, phone, 
 #        id, employer, title, team_name, office,
 #        hours_before_appointment, grad_student,
-#        specialization_type_id, max_students, duration,
-#        list of link_id/link pairs, notification_preferences,
-#        list of tag_type_ids, list of major_ids, list of minor_ids,
+#        specialization_type, max_students, duration,
+#        list of link_type/link pairs, notification_preferences,
+#        list of tag_types, list of major preferences, list of minor preferences,
 #        list of supporter types         
 #Output: 200 OK
 
 def update_supporter_settings(event, context):
 
-    supporter_id = event['id']    
+    supporter_id = int(event['id'])
 
     #Check if supporter exists
     sql = 'SELECT * FROM supporters WHERE supporter_id = :supporter_id;'
@@ -53,7 +53,7 @@ def update_supporter_settings(event, context):
             tag_type_id_list.append(response['records'][0][0]['longValue'])
 
 
-    major_list = event['major_id']
+    major_list = event['major_preferences']
     major_id_list = []
     #Check if major_id exists
     for entry in major_list:
@@ -67,7 +67,7 @@ def update_supporter_settings(event, context):
 
     
     #Check if minor_id exists
-    minor_list = event['minor_id']
+    minor_list = event['minor_preferences']
     minor_id_list = []
     for entry in minor_list:
         sql = 'SELECT minor_id FROM minor WHERE minor = :minor;'
@@ -168,7 +168,7 @@ def update_supporter_settings(event, context):
     supporter_specialization = {}
     updated_specializations = []
 
-    if event['specialization_type_id'] != "":
+    if event['specialization_type'] != "":
         specialization_type_id = event['specialization_type_id']
         supporter_specialization['specialization_type_id'] = specialization_type_id
         updated_specializations.append("specialization_type_id = :specialization_type_id")
