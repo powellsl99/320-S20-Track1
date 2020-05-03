@@ -23,7 +23,7 @@ def generate_scheduled_appt_dict(date_start, date_end):
     AND SFA.specialization_type_id = ST.specialization_type_id\
     AND ST.specialization_type_id = SS.specialization_type_id\
     AND NOT cancelled\
-    AND time_of_appt BETWEEN '2020-04-01' AND '2020-05-01';"
+    AND time_of_appt BETWEEN :date_end AND :date_start;"
 
     params = [{'name' : 'date_start', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_start}}, {'name' : 'date_end', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_end}}]
 
@@ -48,13 +48,14 @@ def generate_scheduled_appt_dict(date_start, date_end):
 def generate_supporter_dict():
     supporters = {}
 
-    supporters_sql = "SELECT S.supporter_id, U.first_name, U.last_name, U.picture, S.rating, S.employer, S.title, S.office, (select link from user_link where user_id = U.id and link_id = (select link_id from link where link_type = 'linkedin')), (select tag_type from tag_type where tag_type_id = ST.tag_type_id), SPS.grad_student, SPS.hours_before_appointment, (select major from major where major_id = SMP.major_id), SS.max_students, SS.duration, (select specialization_type from specialization_type where specialization_type_id = SS.specialization_type_id)\
-    FROM users U, supporters S, supporter_tags ST, supporter_preferences_for_students SPS, supporter_major_preferences SMP, supporter_specializations SS\
+    supporters_sql = "SELECT S.supporter_id, U.first_name, U.last_name, U.picture, S.rating, S.employer, S.title, S.office, (select link from user_link where user_id = U.id and link_id = (select link_id from link where link_type = 'linkedin')), (select tag_type from tag_type where tag_type_id = ST.tag_type_id), SPS.grad_student, SPS.hours_before_appointment, (select major from major where major_id = SMP.major_id), SS.max_students, SS.duration, (select specialization_type from specialization_type where specialization_type_id = SS.specialization_type_id), (select medium from medium where medium_id = SM.medium_id)\
+    FROM users U, supporters S, supporter_tags ST, supporter_preferences_for_students SPS, supporter_major_preferences SMP, supporter_specializations SS, supporter_mediums SM\
     WHERE U.id = S.user_id\
     AND S.supporter_id = ST.supporter_id\
     AND S.supporter_id = SPS.supporter_id\
     AND SPS.supporter_id = SMP.supporter_id\
-    AND S.supporter_id = SS.supporter_id;"
+    AND S.supporter_id = SS.supporter_id\
+    AND S.supporter_id = SM.supporter_id;"
 
     supporter_query = query(supporters_sql)
 
@@ -68,44 +69,78 @@ def generate_supporter_dict():
             if entry[15]['stringValue'] not in supporter['topics']:
                 new_topic = {'duration':entry[14]['longValue'], 'max_students': entry[13]['longValue']}
                 supporter['topics'][entry[15]['stringValue']] = new_topic
+            if entry[16]['stringValue'] not in supporter['mediums']:
+                supporter['mediums'].append(entry[16]['stringValue'])
         else:
             new_supporter = {}
             new_supporter['supporter_id'] = entry[0]['longValue']
-            new_supporter['name'] = "%s %s"%(entry[1]['stringValue'], entry[2]['stringValue'])
-            new_supporter['rating'] = entry[4]['stringValue']
-            new_supporter['employer'] = entry[5]['stringValue']
-            new_supporter['title'] = entry[6]['stringValue']
-            new_supporter['office'] = entry[7]['stringValue']
+            if 'stringValue' in entry[1]:
+                new_supporter['name'] = "%s %s"%(entry[1]['stringValue'], entry[2]['stringValue'])
+            else:
+                new_supporter['name'] = ""
+            if 'stringValue' in entry[4]:
+                new_supporter['rating'] = entry[4]['stringValue']
+            else:
+                new_supporter['rating'] = ""
+            if 'stringValue' in entry[5]:
+                new_supporter['employer'] = entry[5]['stringValue']
+            else:
+                new_supporter['employer'] = ""
+            if 'stringValue' in entry[6]:
+                new_supporter['title'] = entry[6]['stringValue']
+            else:
+                new_supporter['title'] = ""
+            if 'stringValue' in entry[7]:
+                new_supporter['office'] = entry[7]['stringValue']
+            else:
+                new_supporter['office'] = ""
             if 'stringValue' in entry[8]:
                 new_supporter['linkedin'] = entry[8]['stringValue']
             else:
                 new_supporter["linkedin"] = ""
-            new_supporter['tags'] = [entry[9]['stringValue']]
-            new_supporter['employer'] = entry[5]['stringValue']
-            new_supporter['imgsrc'] = entry[3]['stringValue']
+            if 'stringValue' in entry[9]:
+                new_supporter['tags'] = [entry[9]['stringValue']]
+            else:
+                new_supporter['tags'] = []
+            if 'stringValue' in entry[5]:
+                new_supporter['employer'] = entry[5]['stringValue']
+            else:
+                new_supporter['employer'] = ""
+            if 'stringValue' in entry[3]:
+                new_supporter['imgsrc'] = entry[3]['stringValue']
+            else:
+                new_supporter['imgsrc'] = ""
             new_supporter['topics'] = {entry[15]['stringValue']:{'duration':entry[14]['longValue'], 'max_students': entry[13]['longValue']}}
             new_supporter['preferences'] = {'grad_student': entry[10]['booleanValue'], 'hours_before_appointment': entry[11]['longValue'], 'major_prefs': [entry[12]['stringValue']]}
+            new_supporter['mediums'] = [entry[16]['stringValue']]
 
             supporters[entry[0]['longValue']] = new_supporter
 
     return supporters
 
 def generate_block_dict(supporter_dict, scheduled_appointments, date_start, date_end):
-    blocks = []
+    blocks = {}
 
-    blocks_sql = "SELECT supporter_id, start_date, end_date, max_num_of_appts FROM appointment_block WHERE start_date BETWEEN '2020-04-01' AND '2020-05-01';"
+    blocks_sql = "SELECT supporter_id, start_date, end_date, max_num_of_appts FROM appointment_block WHERE start_date BETWEEN :date_start AND :date_end;"
 
     params = [{'name' : 'date_start', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_start}}, {'name' : 'date_end', 'typeHint' : 'TIMESTAMP', 'value' : {'stringValue' : date_end}}]
 
     block_query = query(blocks_sql, params)
 
     for entry in block_query['records']:
-        new_block = copy.deepcopy(supporter_dict[entry[0]['longValue']])
 
         start_datetime = datetime.strptime(entry[1]['stringValue'], DATETIME_FORMAT)
         end_datetime = datetime.strptime(entry[2]['stringValue'], DATETIME_FORMAT)
 
         day = start_datetime.date()
+
+        if (entry[0]['longValue'], day) in blocks:
+            new_block = blocks[(entry[0]['longValue'], day)]
+        else:
+            new_block = copy.deepcopy(supporter_dict[entry[0]['longValue']])
+            new_block['timeBlocks'] = []
+            new_block['day'] = day.strftime(DATE_FORMAT)
+            blocks[(entry[0]['longValue'], day)] = new_block
         
         if (new_block['supporter_id'], day) in scheduled_appointments:
             taken_times = scheduled_appointments[(new_block['supporter_id'], day)]
@@ -124,13 +159,15 @@ def generate_block_dict(supporter_dict, scheduled_appointments, date_start, date
         if curr_latest_time != end_datetime:
             available_times.append({'start': curr_latest_time.strftime(TIME_FORMAT), 'end': end_datetime.strftime(TIME_FORMAT)})
 
-        new_block['day'] = day.strftime(DATE_FORMAT)
-        new_block['timeBlocks'] = available_times
+        new_block['timeBlocks'].extend(available_times)
 
-        if available_times != []:
-            blocks.append(new_block)
+    block_values = blocks.values()
 
-    return blocks
+    for block in block_values:
+        if block['timeBlocks'] == []:
+            block_values.remove(block)
+    
+    return block_values
 
 def main(event, context):
 
