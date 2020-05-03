@@ -11,7 +11,8 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Button from "@material-ui/core/Button";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
-
+import {Avatar, ButtonBase, Dialog} from '@material-ui/core'
+import axios from 'axios'
 import Cookies from 'universal-cookie'
 
 const cookies = new Cookies();
@@ -247,6 +248,8 @@ export default function StudentSettings() {
   const [minor, setMinor] = useState("");
   const [gradYear, setGradYear] = useState("");
   const url = "";
+  const [isOpen, setOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState(null)
 
   useEffect(() => {
     fetch(url)
@@ -256,6 +259,46 @@ export default function StudentSettings() {
         setFirstName(info.first_name);
       });
   }, []);
+
+
+  function handleOpen(){
+    setOpen(true)
+  }
+
+  const fileSelectHandler = event => {
+    setSelectedFile(event.target.files[0])
+  }
+
+  const fileUploadHandler = ()=> {
+    //const fd = new FormData()
+    //fd.append('file_obj', {})
+    console.log(selectedFile)
+    fetch(
+      "https://7jdf878rej.execute-api.us-east-2.amazonaws.com/prod/upload",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          file_obj: "vonivoivo"
+        })
+      }
+    )
+    .then(response => {
+      if (response.status >= 200 && response.status < 300) {
+        console.log(response)
+        
+        return response.json();
+      } else {
+        throw new Error("Server can't be reached!");
+      }
+    })
+    .then(json => {
+      //setOpen(false);
+      //setOpenCreated(true);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  }
 
   return (
     // <Container component="main" maxWidth="xs" align="center">
@@ -368,7 +411,13 @@ export default function StudentSettings() {
                     onChange={(e) => setBio(e.target.value)}
                   />
                 </Grid>
-                upload photo and resume here
+                <Grid item xs={4} justify='center' style={{display: 'flex'}}>
+                  <ButtonBase style={{width: 150, height: 150, borderRadius: '50%'}} onClick={handleOpen}>
+                    <Avatar alt="Remy Sharp" src="" style={{width: 150, height: 150}}/>
+                  </ButtonBase>
+                  <input type="file" onChange={fileSelectHandler}></input>
+                  <Button onClick={fileUploadHandler}></Button>
+                </Grid>
               </Grid>
             </ExpansionPanelDetails>
           </ExpansionPanel>
@@ -499,6 +548,10 @@ export default function StudentSettings() {
           Save Changes
         </Button>
       </Grid>
+
+      {/* <Dialog open={isOpen}>
+        <Typography>Just some Text to Test out</Typography>
+      </Dialog> */}
     </Grid>
   );
 }
